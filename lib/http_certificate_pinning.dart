@@ -22,7 +22,7 @@ class HttpCertificatePinning {
       "url" : serverURL,
       "headers" : headerHttp,
       "type": sha.toString().split(".").last,
-      "fingerprints" : allowedSHAFingerprints.map((a) => a.replaceAll(":", "")),
+      "fingerprints" : allowedSHAFingerprints.map((a) => a.replaceAll(":", "")).toList(),
       "timeout" : timeout
     };
     String resp = await _channel.invokeMethod('check', params);
