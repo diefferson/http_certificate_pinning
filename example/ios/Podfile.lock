@@ -2,8 +2,8 @@ PODS:
   - Alamofire (4.9.1)
   - CryptoSwift (1.3.0)
   - Flutter (1.0.0)
-  - http_certificate_pinning (0.0.1):
-    - Alamofire
+  - http_certificate_pinning (1.0.3):
+    - Alamofire (~> 4.7)
     - CryptoSwift
     - Flutter
 
@@ -26,7 +26,7 @@ SPEC CHECKSUMS:
   Alamofire: 85e8a02c69d6020a0d734f6054870d7ecb75cf18
   CryptoSwift: 1283821600233bdbeb96d7b389c3288c3bf77211
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
-  http_certificate_pinning: 6e1c6403f8dc76ca95cd1b8bfc1b8c24f9e2fff7
+  http_certificate_pinning: 23157eae20c5887e49372b3cbe7a1d5863eb9bad
 
 PODFILE CHECKSUM: 1b66dae606f75376c5f2135a8290850eeb09ae83
 
