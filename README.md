@@ -13,8 +13,21 @@ In your flutter or dart project add the dependency:
 ```yml
 dependencies:
   ...
-  http_certificate_pinning: 1.0.0
+  http_certificate_pinning: 1.0.1
 ```
+
+## Get Certificate FingerPrint
+
+To get SHA256 certificate fingerprint run in console:
+
+```
+openssl x509 -noout -fingerprint -sha256 -inform pem -in [certificate-file.crt]
+```
+
+The Result is like:
+
+'59:58:57:5A:5B:5C:5D:59:58:57:5A:5B:5C:5D:59:58:57:5A:5B:5C:5D:59:58:57:5A:5B:5C:5D:59:58:57:5A:5B:5C:5D'
+
 
 ## Usage example
 
