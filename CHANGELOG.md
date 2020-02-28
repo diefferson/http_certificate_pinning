@@ -1,3 +1,6 @@
-## 0.0.1
+## 1.0.0
 
-* TODO: Describe initial release.
+* This version contains:
+  - The base HTTPS validation  
+  - Interceptor to Dio (https://pub.dev/packages/dio)
+  - Client to HTTP (https://pub.dev/packages/http)
