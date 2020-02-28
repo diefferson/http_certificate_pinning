@@ -9,3 +9,11 @@
   
 Accepts ':' in certificates
 
+  
+## 1.0.2
+  
+
+## 1.0.3
+  
+Downgrade Alamofire version
+
