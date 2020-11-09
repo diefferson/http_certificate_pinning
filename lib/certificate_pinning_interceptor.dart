@@ -12,7 +12,7 @@ class CertificatePinningInterceptor extends Interceptor{
   Future onRequest(RequestOptions options) async {
 
     final secure = await HttpCertificatePinning.check(
-        serverURL: options.baseUrl,
+        serverURL: options.uri.toString(),
         headerHttp: options.headers.map((a,b)=> MapEntry(a, b.toString())),
         sha: SHA.SHA256,
         allowedSHAFingerprints:_allowedSHAFingerprints,
