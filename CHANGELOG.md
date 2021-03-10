@@ -17,3 +17,6 @@ Accepts ':' in certificates
   
 Downgrade Alamofire version
 
+## 1.0.4
+  
+Support iOS 9.0 and above
