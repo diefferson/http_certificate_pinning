@@ -19,4 +19,8 @@ Downgrade Alamofire version
 
 ## 1.0.4
   
-Support iOS 9.0 and above
+Support iOS 9.0 and above 
+
+## 2.0.0
+
+Flutter 2 support and null-safety

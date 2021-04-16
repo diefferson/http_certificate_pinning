@@ -1,18 +1,18 @@
 name: http_certificate_pinning
 description: Https Certificate pinning for Flutter
-version: 1.0.4
+version: 2.0.0
 author: Diefferson Santos <diefferson.sts@gmail.com>
 homepage: https://github.com/diefferson/http_certificate_pinning
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: '>=2.12.0 <3.0.0'
   flutter: ">=1.12.0"
 
 dependencies:
+  dio: ^4.0.0
   flutter:
     sdk: flutter
-  dio: ^3.0.10
-  http: ^0.12.0+4
+  http: ^0.13.1
 
 dev_dependencies:
   flutter_test:

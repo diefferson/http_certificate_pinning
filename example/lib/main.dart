@@ -28,14 +28,15 @@ class _MyAppState extends State<MyApp> {
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
-  check(String url, String fingerprint, SHA sha, Map<String, String> headerHttp, int timeout) async {
-
-    List<String> allowedShA1FingerprintList = new List();
+  check(String url, String fingerprint, SHA sha, Map<String, String> headerHttp,
+      int timeout) async {
+    List<String> allowedShA1FingerprintList = [];
     allowedShA1FingerprintList.add(fingerprint);
 
     try {
       // Platform messages may fail, so we use a try/catch PlatformException.
-      String checkMsg = await HttpCertificatePinning.check(serverURL: url,
+      String checkMsg = await HttpCertificatePinning.check(
+          serverURL: url,
           headerHttp: headerHttp,
           sha: sha,
           allowedSHAFingerprints: allowedShA1FingerprintList,
@@ -44,8 +45,7 @@ class _MyAppState extends State<MyApp> {
       // If the widget was removed from the tree while the asynchronous platform
       // message was in flight, we want to discard the reply rather than calling
       // setState to update our non-existent appearance.
-      if (!mounted)
-        return;
+      if (!mounted) return;
 
       Scaffold.of(scaffoldContext).showSnackBar(
         new SnackBar(
@@ -53,19 +53,16 @@ class _MyAppState extends State<MyApp> {
           duration: Duration(seconds: 1),
           backgroundColor: Colors.green,
         ),
-
       );
-    }catch (e){
+    } catch (e) {
       Scaffold.of(scaffoldContext).showSnackBar(
         new SnackBar(
           content: new Text(e.toString()),
           duration: Duration(seconds: 1),
           backgroundColor: Colors.red,
         ),
-
       );
     }
-
   }
 
   void submit() {
@@ -73,7 +70,8 @@ class _MyAppState extends State<MyApp> {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save(); // Save our form now.
 
-      this.check(_data.serverURL, _data.allowedSHAFingerprint, _data.sha, _data.headerHttp, _data.timeout);
+      this.check(_data.serverURL, _data.allowedSHAFingerprint, _data.sha,
+          _data.headerHttp, _data.timeout);
     }
   }
 
@@ -85,8 +83,7 @@ class _MyAppState extends State<MyApp> {
           appBar: new AppBar(
             title: new Text('Ssl Pinning Plugin'),
           ),
-          body:
-          new Builder(builder: (BuildContext context) {
+          body: new Builder(builder: (BuildContext context) {
             this.scaffoldContext = context;
             return Container(
                 padding: EdgeInsets.all(20.0),
@@ -98,8 +95,7 @@ class _MyAppState extends State<MyApp> {
                           keyboardType: TextInputType.url,
                           decoration: InputDecoration(
                               hintText: 'https://yourdomain.com',
-                              labelText: 'URL'
-                          ),
+                              labelText: 'URL'),
                           validator: (value) {
                             if (value.isEmpty) {
                               return 'Please enter some url';
@@ -107,13 +103,21 @@ class _MyAppState extends State<MyApp> {
                           },
                           onSaved: (String value) {
                             this._data.serverURL = value;
-                          }
-                      ),
+                          }),
                       DropdownButton(
-                        items: [DropdownMenuItem(child: Text(SHA.SHA1.toString()), value: SHA.SHA1,), DropdownMenuItem(child: Text(SHA.SHA256.toString()), value: SHA.SHA256,)],
+                        items: [
+                          DropdownMenuItem(
+                            child: Text(SHA.SHA1.toString()),
+                            value: SHA.SHA1,
+                          ),
+                          DropdownMenuItem(
+                            child: Text(SHA.SHA256.toString()),
+                            value: SHA.SHA256,
+                          )
+                        ],
                         value: _data.sha,
                         isExpanded: true,
-                        onChanged: (SHA val){
+                        onChanged: (SHA val) {
                           setState(() {
                             this._data.sha = val;
                           });
@@ -123,8 +127,7 @@ class _MyAppState extends State<MyApp> {
                           keyboardType: TextInputType.text,
                           decoration: InputDecoration(
                               hintText: 'OO OO OO OO OO OO OO OO OO OO',
-                              labelText: 'Fingerprint'
-                          ),
+                              labelText: 'Fingerprint'),
                           validator: (value) {
                             if (value.isEmpty) {
                               return 'Please enter some fingerprint';
@@ -132,15 +135,12 @@ class _MyAppState extends State<MyApp> {
                           },
                           onSaved: (String value) {
                             this._data.allowedSHAFingerprint = value;
-                          }
-                      ),
+                          }),
                       TextFormField(
                           keyboardType: TextInputType.number,
                           initialValue: '60',
                           decoration: InputDecoration(
-                              hintText: '60',
-                              labelText: 'Timeout'
-                          ),
+                              hintText: '60', labelText: 'Timeout'),
                           validator: (value) {
                             if (value.isEmpty) {
                               return 'Please enter some timeout';
@@ -148,29 +148,22 @@ class _MyAppState extends State<MyApp> {
                           },
                           onSaved: (String value) {
                             this._data.timeout = int.parse(value);
-                          }
-                      ),
+                          }),
                       Container(
                         child: RaisedButton(
                           child: Text(
                             'Check',
-                            style: TextStyle(
-                                color: Colors.white
-                            ),
+                            style: TextStyle(color: Colors.white),
                           ),
                           onPressed: () => submit(),
                           color: Colors.blue,
                         ),
-                        margin: EdgeInsets.only(
-                            top: 20.0
-                        ),
+                        margin: EdgeInsets.only(top: 20.0),
                       )
                     ],
                   ),
-                )
-            );
-          })
-      ),
+                ));
+          })),
     );
   }
 }
