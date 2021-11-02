@@ -24,3 +24,8 @@ Support iOS 9.0 and above
 ## 2.0.0
 
 Flutter 2 support and null-safety
+
+## 2.0.1
+
+Fix iOS freezing
+Fiz iOS parallels requests.
