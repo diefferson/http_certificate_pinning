@@ -9,6 +9,8 @@ import '../exceptions/exceptions.dart';
 class CertificatePinningInterceptor extends Interceptor {
   final List<String> _allowedSHAFingerprints;
   final int _timeout;
+  final Set<String> verifiedURLs = {};
+  Future<String>? secure = Future.value('');
 
   CertificatePinningInterceptor({
     List<String>? allowedSHAFingerprints,
@@ -24,7 +26,16 @@ class CertificatePinningInterceptor extends Interceptor {
     RequestInterceptorHandler handler,
   ) async {
     try {
-      final secure = await HttpCertificatePinning.check(
+      // skip verification if already verified, performance
+      if (verifiedURLs.contains(options.baseUrl)) {
+        return super.onRequest(options, handler);
+      }
+      // iOS bug: Alamofire is failing to return parallel requests for certificate validation
+      if (Platform.isIOS && secure != null) {
+        await secure;
+      }
+
+      secure = HttpCertificatePinning.check(
         serverURL: options.baseUrl,
         headerHttp: options.headers.map((a, b) => MapEntry(a, b.toString())),
         sha: SHA.SHA256,
@@ -32,7 +43,11 @@ class CertificatePinningInterceptor extends Interceptor {
         timeout: _timeout,
       );
 
-      if (secure.contains('CONNECTION_SECURE')) {
+      secure?.whenComplete(() => secure = null);
+      final secureString = await secure ?? '';
+
+      if (secureString.contains('CONNECTION_SECURE')) {
+        verifiedURLs.add(options.baseUrl);
         return super.onRequest(options, handler);
       } else {
         handler.reject(
