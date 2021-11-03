@@ -26,7 +26,7 @@ class HttpCertificatePinning {
   }) async {
     final Map<String, dynamic> params = <String, dynamic>{
       "url": serverURL,
-      "headers": headerHttp,
+      "headers": headerHttp ?? {},
       "type": sha.toString().split(".").last,
       "fingerprints":
           allowedSHAFingerprints.map((a) => a.replaceAll(":", "")).toList(),

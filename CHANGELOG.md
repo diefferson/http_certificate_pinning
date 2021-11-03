@@ -33,3 +33,7 @@ Fiz iOS parallels requests.
 ## 2.0.2
 
 Fix error Platform import
+
+## 2.0.3
+
+Error on pass null to headers
