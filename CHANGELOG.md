@@ -29,3 +29,7 @@ Flutter 2 support and null-safety
 
 Fix iOS freezing
 Fiz iOS parallels requests.
+
+## 2.0.2
+
+Fix error Platform import
