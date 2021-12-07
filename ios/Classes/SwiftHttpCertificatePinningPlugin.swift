@@ -92,7 +92,10 @@ public class SwiftHttpCertificatePinningPlugin: NSObject, FlutterPlugin {
         }
 
         manager.delegate.sessionDidReceiveChallenge = { session, challenge in
-            guard let serverTrust = challenge.protectionSpace.serverTrust, let certificate = SecTrustGetCertificateAtIndex(serverTrust, 0) else {
+            
+            guard let serverTrust = challenge.protectionSpace.serverTrust,
+                  let certCount = SecTrustGetCertificateCount(serverTrust),
+                  certCount > 0 else {
                 flutterResult(
                     FlutterError(
                         code: "ERROR CERT",
@@ -107,31 +110,41 @@ public class SwiftHttpCertificatePinningPlugin: NSObject, FlutterPlugin {
             // Set SSL policies for domain name check
             let policies: [SecPolicy] = [SecPolicyCreateSSL(true, (challenge.protectionSpace.host as CFString))]
             SecTrustSetPolicies(serverTrust, policies as CFTypeRef)
-
-            // Evaluate server certificate
+            
             var result: SecTrustResultType = .invalid
             SecTrustEvaluate(serverTrust, &result)
             let isServerTrusted: Bool = (result == .unspecified || result == .proceed)
+            
+            var success = false
+            for index in 0..<certCount {
+                let certificate = SecTrustGetCertificateAtIndex(serverTrust, index)
+                // Evaluate server certificate
 
-            let serverCertData = SecCertificateCopyData(certificate) as Data
-            var serverCertSha = serverCertData.sha256().toHexString()
+                let serverCertData = SecCertificateCopyData(certificate) as Data
+                var serverCertSha = serverCertData.sha256().toHexString()
 
-            if(type == "SHA1"){
-                serverCertSha = serverCertData.sha1().toHexString()
+                if(type == "SHA1"){
+                    serverCertSha = serverCertData.sha1().toHexString()
+                }
+
+                var isSecure = false
+                if var fp = self.fingerprints {
+                    fp = fp.compactMap { (val) -> String? in
+                        val.replacingOccurrences(of: " ", with: "")
+                    }
+
+                    isSecure = fp.contains(where: { (value) -> Bool in
+                        value.caseInsensitiveCompare(serverCertSha) == .orderedSame
+                    })
+                }
+                
+                if isServerTrusted && isSecure {
+                    success = true
+                    break
+                }
             }
 
-            var isSecure = false
-            if var fp = self.fingerprints {
-                fp = fp.compactMap { (val) -> String? in
-                    val.replacingOccurrences(of: " ", with: "")
-            }
-
-                isSecure = fp.contains(where: { (value) -> Bool in
-                    value.caseInsensitiveCompare(serverCertSha) == .orderedSame
-                })
-            }
-
-            if isServerTrusted && isSecure {
+            if success {
                 flutterResult("CONNECTION_SECURE")
                 resultDispatched = true
             } else {
