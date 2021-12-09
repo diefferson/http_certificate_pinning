@@ -5,7 +5,6 @@ import android.os.Handler
 import android.os.Looper
 import android.os.StrictMode
 import android.util.Base64
-import android.util.Log
 import androidx.annotation.NonNull
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
@@ -91,17 +90,12 @@ public class HttpCertificatePinningPlugin : FlutterPlugin, MethodCallHandler {
   private fun checkConnection(serverURL: String, allowedFingerprints: List<String>, httpHeaderArgs: Map<String, String>, timeout: Int, type: String): Boolean {
     val serverList = getFingerprint(serverURL, timeout, httpHeaderArgs, type)
     val clientList = allowedFingerprints.map { fp ->
-      fp.trim()
+      fp.trim().replace("\n", "").replace("\r", "")
     }
     for (server in serverList) {
       for (client in clientList) {
-        Log.d("SSL_PINNING_FINGERPRINT", "server: $server |")
-        Log.d("SSL_PINNING_FINGERPRINT", "client: $client |")
         if (server == client) {
-          Log.d("SSL_PINNING_FINGERPRINT", "same")
           return true
-        } else {
-          Log.d("SSL_PINNING_FINGERPRINT", "not same")
         }
       }
     }
@@ -139,9 +133,7 @@ public class HttpCertificatePinningPlugin : FlutterPlugin, MethodCallHandler {
         .getInstance(type)
         .digest(input),
       Base64.DEFAULT
-    )
-
-    Log.d("SSL_PINNING_FINGERPRINT", "Host: $host, Fingerprint: $hashString")
+    ).replace("\n", "").replace("\r", "")
     return hashString
   }
 
