@@ -3,22 +3,20 @@ package diefferson.http_certificate_pinning
 
 import android.os.Handler
 import android.os.Looper
-import android.os.StrictMode
 import android.util.Log
 import androidx.annotation.NonNull
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
-import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.Registrar
 import java.io.IOException
 import java.net.SocketTimeoutException
 import java.net.URL
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
-import java.security.cert.Certificate
 import java.security.cert.CertificateEncodingException
+import java.security.cert.X509Certificate
 import java.text.ParseException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -117,19 +115,27 @@ public class HttpCertificatePinningPlugin : FlutterPlugin, MethodCallHandler {
       return emptyList()
     }
 
-    return httpClient.serverCertificates.map { hashString(url.host, type, it.encoded) }.toList()
+    return httpClient.serverCertificates.map {
+        if (it is X509Certificate)
+            hashString(url.host, type, it.publicKey.encoded)
+        else
+            hashString(url.host, type, it.encoded)
+    }.toList()
   }
 
-  private fun hashString(host: String, type: String, input: ByteArray) : String {
-    val hashString =
-    MessageDigest
-      .getInstance(type)
-      .digest(input)
-      .map { String.format("%02X", it) }
-      .joinToString(separator = "")
-    Log.d("SSL_PINNING_FINGERPRINT", "Host: $host, Fingerprint: $hashString")
-    return hashString
-  }
+    private fun hashString(
+        host: String,
+        type: String,
+        input: ByteArray
+    ): String {
+        val hashString = MessageDigest
+            .getInstance(type)
+            .digest(input)
+            .map { String.format("%02X", it) }
+            .joinToString(separator = "")
+        Log.d("SSL_PINNING_FINGERPRINT", "Host: $host, Fingerprint: $hashString")
+        return hashString
+    }
 
   override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {}
 
