@@ -3,7 +3,6 @@ package diefferson.http_certificate_pinning
 
 import android.os.Handler
 import android.os.Looper
-import android.util.Base64
 import android.util.Log
 import androidx.annotation.NonNull
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -17,7 +16,6 @@ import java.net.URL
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 import java.security.cert.CertificateEncodingException
-import java.security.cert.X509Certificate
 import java.text.ParseException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -117,10 +115,7 @@ public class HttpCertificatePinningPlugin : FlutterPlugin, MethodCallHandler {
     }
 
     return httpClient.serverCertificates.map {
-        if (it is X509Certificate)
-            hashString(url.host, type, it.publicKey.encoded)
-        else
-            hashString(url.host, type, it.encoded)
+        hashString(url.host, type, it.publicKey.encoded)
     }.toList()
   }
 
@@ -129,12 +124,12 @@ public class HttpCertificatePinningPlugin : FlutterPlugin, MethodCallHandler {
     type: String,
     input: ByteArray
   ): String {
-    val hashString = Base64.encodeToString(
-      MessageDigest
+    val hashString = MessageDigest
         .getInstance(type)
-        .digest(input),
-      Base64.DEFAULT
-    )
+        .digest(input)
+        .map { String.format("%02X", it) }
+        .joinToString(separator = "")
+
     Log.d("SSL_PINNING_FINGERPRINT", "Host: $host, Fingerprint: $hashString")
     return hashString
   }
