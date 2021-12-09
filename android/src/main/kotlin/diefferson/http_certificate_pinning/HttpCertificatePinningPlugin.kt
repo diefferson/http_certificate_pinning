@@ -4,6 +4,7 @@ package diefferson.http_certificate_pinning
 import android.os.Handler
 import android.os.Looper
 import android.os.StrictMode
+import android.util.Base64
 import android.util.Log
 import androidx.annotation.NonNull
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -89,9 +90,8 @@ public class HttpCertificatePinningPlugin : FlutterPlugin, MethodCallHandler {
 
   private fun checkConnexion(serverURL: String, allowedFingerprints: List<String>, httpHeaderArgs: Map<String, String>, timeout: Int, type: String): Boolean {
     val serverList = getFingerprint(serverURL, timeout, httpHeaderArgs, type)
-    val clientList = allowedFingerprints.map { fp -> fp.toUpperCase().replace("\\s".toRegex(), "") }
     for (server in serverList) {
-      for (client in clientList) {
+      for (client in allowedFingerprints) {
         if (server == client) {
           return true
         }
@@ -127,11 +127,11 @@ public class HttpCertificatePinningPlugin : FlutterPlugin, MethodCallHandler {
     type: String,
     input: ByteArray
   ): String {
-    val hashString = MessageDigest
+    val hashString = Base64.encodeToString(MessageDigest
         .getInstance(type)
-        .digest(input)
-        .map { String.format("%02X", it) }
-        .joinToString(separator = "")
+        .digest(input),
+      Base64.DEFAULT
+    )
 
     Log.d("SSL_PINNING_FINGERPRINT", "Host: $host, Fingerprint: $hashString")
     return hashString
