@@ -4,6 +4,7 @@ package diefferson.http_certificate_pinning
 import android.os.Handler
 import android.os.Looper
 import android.os.StrictMode
+import android.util.Log
 import androidx.annotation.NonNull
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
@@ -116,16 +117,19 @@ public class HttpCertificatePinningPlugin : FlutterPlugin, MethodCallHandler {
       return emptyList()
     }
 
-    return httpClient.serverCertificates.map { hashString(type, it.encoded) }.toList()
+    return httpClient.serverCertificates.map { hashString(url.host, type, it.encoded) }.toList()
   }
 
-  private fun hashString(type: String, input: ByteArray) =
-          MessageDigest
-                  .getInstance(type)
-                  .digest(input)
-                  .map { String.format("%02X", it) }
-                  .joinToString(separator = "")
-
+  private fun hashString(host: String, type: String, input: ByteArray) : String {
+    val hashString =
+    MessageDigest
+      .getInstance(type)
+      .digest(input)
+      .map { String.format("%02X", it) }
+      .joinToString(separator = "")
+    Log.d("SSL_PINNING_FINGERPRINT", "Host: $host, Fingerprint: $hashString")
+    return hashString
+  }
 
   override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {}
 
