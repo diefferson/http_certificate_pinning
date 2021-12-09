@@ -76,7 +76,7 @@ public class HttpCertificatePinningPlugin : FlutterPlugin, MethodCallHandler {
     val timeout: Int = arguments.get("timeout") as Int
     val type: String = arguments.get("type") as String
 
-    if (this.checkConnexion(serverURL, allowedFingerprints, httpHeaderArgs, timeout, type)) {
+    if (this.checkConnection(serverURL, allowedFingerprints, httpHeaderArgs, timeout, type)) {
       handler?.post {
         result.success("CONNECTION_SECURE")
       }
@@ -88,14 +88,21 @@ public class HttpCertificatePinningPlugin : FlutterPlugin, MethodCallHandler {
 
   }
 
-  private fun checkConnexion(serverURL: String, allowedFingerprints: List<String>, httpHeaderArgs: Map<String, String>, timeout: Int, type: String): Boolean {
+  private fun checkConnection(serverURL: String, allowedFingerprints: List<String>, httpHeaderArgs: Map<String, String>, timeout: Int, type: String): Boolean {
     val serverList = getFingerprint(serverURL, timeout, httpHeaderArgs, type)
-    for (fingerPrint in allowedFingerprints) {
-      Log.d("SSL_PINNING_FINGERPRINT", "Client Fingerprint: $$fingerPrint")
+    val clientList = allowedFingerprints.map { fp ->
+      fp.trim()
     }
-    for (client in allowedFingerprints) {
-      if (serverList.contains(client)) {
-        return true
+    for (server in serverList) {
+      for (client in clientList) {
+        Log.d("SSL_PINNING_FINGERPRINT", "server: $server |")
+        Log.d("SSL_PINNING_FINGERPRINT", "client: $client |")
+        if (server == client) {
+          Log.d("SSL_PINNING_FINGERPRINT", "same")
+          return true
+        } else {
+          Log.d("SSL_PINNING_FINGERPRINT", "not same")
+        }
       }
     }
     return false
