@@ -90,11 +90,12 @@ public class HttpCertificatePinningPlugin : FlutterPlugin, MethodCallHandler {
 
   private fun checkConnexion(serverURL: String, allowedFingerprints: List<String>, httpHeaderArgs: Map<String, String>, timeout: Int, type: String): Boolean {
     val serverList = getFingerprint(serverURL, timeout, httpHeaderArgs, type)
-    for (server in serverList) {
-      for (client in allowedFingerprints) {
-        if (server == client) {
-          return true
-        }
+    for (fingerPrint in allowedFingerprints) {
+      Log.d("SSL_PINNING_FINGERPRINT", "Client Fingerprint: $$fingerPrint")
+    }
+    for (client in allowedFingerprints) {
+      if (serverList.contains(client)) {
+        return true
       }
     }
     return false
