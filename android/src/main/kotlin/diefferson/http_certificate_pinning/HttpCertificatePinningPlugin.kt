@@ -29,6 +29,7 @@ import javax.security.cert.CertificateException
 public class HttpCertificatePinningPlugin : FlutterPlugin, MethodCallHandler {
 
   private var threadExecutorService: ExecutorService? = null
+
   private var handler: Handler? = null
 
   init {
@@ -48,7 +49,6 @@ public class HttpCertificatePinningPlugin : FlutterPlugin, MethodCallHandler {
     val channel = MethodChannel(binding.binaryMessenger, "http_certificate_pinning")
     channel.setMethodCallHandler(HttpCertificatePinningPlugin())
   }
-
 
   override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
     try {
@@ -87,25 +87,9 @@ public class HttpCertificatePinningPlugin : FlutterPlugin, MethodCallHandler {
 
   }
 
-  private fun checkConnection(serverURL: String, allowedFingerprints: List<String>, httpHeaderArgs: Map<String, String>, timeout: Int, type: String): Boolean {
-    val serverList = getFingerprint(serverURL, timeout, httpHeaderArgs, type)
-    val clientList = allowedFingerprints.map { fp ->
-      fp.trim().replace("\n", "").replace("\r", "")
-    }
-    for (server in serverList) {
-      for (client in clientList) {
-        if (server == client) {
-          return true
-        }
-      }
-    }
-    return false
-  }
-
   @Throws(IOException::class, NoSuchAlgorithmException::class, CertificateException::class, CertificateEncodingException::class, SocketTimeoutException::class)
-  private fun getFingerprint(httpsURL: String, connectTimeout: Int, httpHeaderArgs: Map<String, String>, type: String): List<String> {
-
-    val url = URL(httpsURL)
+  private fun checkConnection(serverURL: String, allowedFingerprints: List<String>, httpHeaderArgs: Map<String, String>, timeout: Int, type: String): Boolean {
+    val url = URL(serverURL)
     val httpClient: HttpsURLConnection = url.openConnection() as HttpsURLConnection
     if (connectTimeout > 0)
       httpClient.connectTimeout = connectTimeout * 1000
@@ -119,9 +103,15 @@ public class HttpCertificatePinningPlugin : FlutterPlugin, MethodCallHandler {
       return emptyList()
     }
 
-    return httpClient.serverCertificates.map {
-        hashString(url.host, type, it.publicKey.encoded)
-    }.toList()
+    httpClient.serverCertificates.forEach {
+      val server = hashString(url.host, type, it.publicKey.encoded)
+      for (client in allowedFingerprints) {
+        if (server == client) {
+          return true
+        }
+      }
+    }
+    return false
   }
 
   private fun hashString(
@@ -138,6 +128,4 @@ public class HttpCertificatePinningPlugin : FlutterPlugin, MethodCallHandler {
   }
 
   override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {}
-
-
 }
