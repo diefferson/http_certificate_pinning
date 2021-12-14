@@ -98,9 +98,9 @@ public class HttpCertificatePinningPlugin : FlutterPlugin, MethodCallHandler {
     try {
       httpClient.connect()
     } catch (socket: SocketTimeoutException) {
-      return emptyList()
+      return false
     } catch (io: IOException) {
-      return emptyList()
+      return false
     }
 
     httpClient.serverCertificates.forEach {
