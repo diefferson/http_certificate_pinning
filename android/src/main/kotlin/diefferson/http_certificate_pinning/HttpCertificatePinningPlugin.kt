@@ -91,8 +91,8 @@ public class HttpCertificatePinningPlugin : FlutterPlugin, MethodCallHandler {
   private fun checkConnection(serverURL: String, allowedFingerprints: List<String>, httpHeaderArgs: Map<String, String>, timeout: Int, type: String): Boolean {
     val url = URL(serverURL)
     val httpClient: HttpsURLConnection = url.openConnection() as HttpsURLConnection
-    if (connectTimeout > 0)
-      httpClient.connectTimeout = connectTimeout * 1000
+    if (timeout > 0)
+      httpClient.connectTimeout = timeout * 1000
     httpHeaderArgs.forEach { (key, value) -> httpClient.setRequestProperty(key, value) }
 
     try {
