@@ -37,3 +37,7 @@ Fix error Platform import
 ## 2.0.3
 
 Error on pass null to headers
+
+## 2.0.4
+
+CustomClient on internal http Constructor
