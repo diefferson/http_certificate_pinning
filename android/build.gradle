@@ -2,7 +2,7 @@ group 'diefferson.http_certificate_pinning'
 version '1.0.3'
 
 buildscript {
-    ext.kotlin_version = '1.3.50'
+    ext.kotlin_version = '1.6.10'
     repositories {
         google()
         jcenter()
