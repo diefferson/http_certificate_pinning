@@ -41,3 +41,7 @@ Error on pass null to headers
 ## 2.0.4
 
 CustomClient on internal http Constructor
+
+## 2.0.5
+
+Bump kotlin and gradle version to compat with flutter v2.10
