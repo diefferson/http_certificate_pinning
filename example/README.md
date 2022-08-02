@@ -1,6 +1,6 @@
-# http_certificate_pinning_example
+# example
 
-Demonstrates how to use the http_certificate_pinning plugin.
+A new Flutter project.
 
 ## Getting Started
 
