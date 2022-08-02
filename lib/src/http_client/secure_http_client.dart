@@ -11,17 +11,18 @@ class SecureHttpClient extends http.BaseClient {
 
   http.BaseClient _client = IOClient();
 
-  SecureHttpClient._internal({required this.allowedSHAFingerprints, http.BaseClient? customClient}) {
+  SecureHttpClient._internal(
+      {required this.allowedSHAFingerprints, http.BaseClient? customClient}) {
     if (customClient != null) {
       _client = customClient;
     }
   }
 
-  factory SecureHttpClient.build(List<String> allowedSHAFingerprints, {http.BaseClient? customClient}) {
+  factory SecureHttpClient.build(List<String> allowedSHAFingerprints,
+      {http.BaseClient? customClient}) {
     return SecureHttpClient._internal(
-      allowedSHAFingerprints: allowedSHAFingerprints,
-      customClient: customClient
-    );
+        allowedSHAFingerprints: allowedSHAFingerprints,
+        customClient: customClient);
   }
 
   Future<Response> head(url, {Map<String, String>? headers}) =>
