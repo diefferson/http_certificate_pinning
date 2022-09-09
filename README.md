@@ -34,7 +34,7 @@ The Result is like:
 ### Using Dio
 
 ```dart
-import 'package:http_certificate_pinning/certificate_pinning_interceptor.dart';
+import 'package:http_certificate_pinning/http_certificate_pinning.dart';
   
   // Add CertificatePinningInterceptor in dio Client
   Dio getClient(String baseUrl, List<String> allowedSHAFingerprints){
