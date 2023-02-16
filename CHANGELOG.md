@@ -45,3 +45,8 @@ CustomClient on internal http Constructor
 ## 2.0.6
 
 Updating Android Gradle version
+
+## 2.0.7
+
+Bumping Dio version to 5.0
+Bumping Kotlin version
