@@ -104,6 +104,8 @@ class _MyAppState extends State<MyApp> {
                   children: <Widget>[
                     TextFormField(
                       keyboardType: TextInputType.url,
+                      controller:
+                          TextEditingController(text: "https://google.com"),
                       decoration: const InputDecoration(
                         hintText: 'https://yourdomain.com',
                         labelText: 'URL',
@@ -140,7 +142,7 @@ class _MyAppState extends State<MyApp> {
                     TextFormField(
                       controller: TextEditingController(
                           text:
-                              "22 79 EB 93 00 E5 60 A6 39 4D C5 78 50 A7 79 30 C1 0D 5C 88 74 55 CD CB F9 01 02 E5 0C 6B 3C 1A"),
+                              "51 E9 01 5F FE FB 79 70 D8 DF 74 BB 46 94 63 72 B1 E3 2B 31 6A 46 F0 C5 36 E7 C1 D4 DD C5 B2 70"),
                       keyboardType: TextInputType.text,
                       decoration: const InputDecoration(
                         hintText: 'OO OO OO OO OO OO OO OO OO OO',
