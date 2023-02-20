@@ -9,11 +9,13 @@ class CertificatePinningInterceptor extends Interceptor {
   final List<String> _allowedSHAFingerprints;
   final int _timeout;
   final Set<String> verifiedURLs = {};
+  final bool callFollowingErrorInterceptor;
   Future<String>? secure = Future.value('');
 
   CertificatePinningInterceptor({
     List<String>? allowedSHAFingerprints,
     int timeout = 0,
+    this.callFollowingErrorInterceptor = false,
   })  : _allowedSHAFingerprints = allowedSHAFingerprints != null
             ? allowedSHAFingerprints
             : <String>[],
@@ -70,6 +72,7 @@ class CertificatePinningInterceptor extends Interceptor {
           requestOptions: options,
           error: error,
         ),
+        callFollowingErrorInterceptor,
       );
     }
   }
