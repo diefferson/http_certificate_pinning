@@ -174,9 +174,9 @@ class _MyAppState extends State<MyApp> {
                     ),
                     TextFormField(
                       keyboardType: TextInputType.number,
-                      initialValue: '1',
+                      initialValue: '0',
                       decoration: const InputDecoration(
-                        hintText: '1 for the root',
+                        hintText: '0 for the leaf, usually 2 or 3 for the root',
                         labelText: 'Index',
                       ),
                       onSaved: (value) {
