@@ -109,7 +109,7 @@ public class SwiftHttpCertificatePinningPlugin: NSObject, FlutterPlugin {
                 return (.cancelAuthenticationChallenge, nil)
             }
             
-            // As default we check the leaf fingerprint
+            // As default we check the leaf fingerprint (certificateCount - 1)
             // If the user specifies an index (1 for the root) we perform the check there
             let certificateCount = SecTrustGetCertificateCount(serverTrust)
             let unwrappedIndex = (self.index == nil || self.index == 0) ? certificateCount - 1 : self.index!
@@ -120,7 +120,7 @@ public class SwiftHttpCertificatePinningPlugin: NSObject, FlutterPlugin {
                 flutterResult(
                     FlutterError(
                         code: "ERROR CERT",
-                        message: "Invalid Certificate",
+                        message: "Invalid Certificate - No certificates in the chain",
                         details: nil
                     )
                 )
@@ -128,18 +128,16 @@ public class SwiftHttpCertificatePinningPlugin: NSObject, FlutterPlugin {
             }
             
             guard let certificate = SecTrustGetCertificateAtIndex(serverTrust, certificateIndex) else {
-                // Handle the case where the root certificate cannot be retrieved
+                // Handle the case where the certificate cannot be retrieved
                 flutterResult(
                     FlutterError(
                         code: "ERROR CERT",
-                        message: "Invalid Certificate",
+                        message: "Invalid Certificate - Cannot be retrieved in the chain",
                         details: nil
                     )
                 )
                 return (.cancelAuthenticationChallenge, nil)
-            }
-
-            
+            }    
 
             // Set SSL policies for domain name check
             let policies: [SecPolicy] = [SecPolicyCreateSSL(true, (challenge.protectionSpace.host as CFString))]
