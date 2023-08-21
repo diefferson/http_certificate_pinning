@@ -50,3 +50,9 @@ Updating Android Gradle version
 
 Bumping Dio version to 5.0
 Bumping Kotlin version
+
+## 2.1.0
+
+Bumping SDK version to >=3.0.0 < 4.0.0
+Bumping http version to 1.1.0
+Bumping Dio version to 5.3.2
