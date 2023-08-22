@@ -29,8 +29,14 @@ class CertificatePinningInterceptor extends Interceptor {
         await secure;
       }
 
+      var baseUrl = options.baseUrl;
+
+      if(options.path.contains('http') || options.baseUrl.isEmpty) {
+        baseUrl = options.path;
+      }
+
       secure = HttpCertificatePinning.check(
-        serverURL: options.baseUrl,
+        serverURL: baseUrl,
         headerHttp: {},
         sha: SHA.SHA256,
         allowedSHAFingerprints: _allowedSHAFingerprints,
