@@ -8,7 +8,6 @@ import 'package:http_certificate_pinning/http_certificate_pinning.dart';
 class CertificatePinningInterceptor extends Interceptor {
   final List<String> _allowedSHAFingerprints;
   final int _timeout;
-  final Set<String> verifiedURLs = {};
   Future<String>? secure = Future.value('');
 
   CertificatePinningInterceptor({
@@ -25,18 +24,20 @@ class CertificatePinningInterceptor extends Interceptor {
     RequestInterceptorHandler handler,
   ) async {
     try {
-      // skip verification if already verified, performance
-      if (verifiedURLs.contains(options.baseUrl)) {
-        return super.onRequest(options, handler);
-      }
       // iOS bug: Alamofire is failing to return parallel requests for certificate validation
       if (Platform.isIOS && secure != null) {
         await secure;
       }
 
+      var baseUrl = options.baseUrl;
+
+      if(options.path.contains('http') || options.baseUrl.isEmpty) {
+        baseUrl = options.path;
+      }
+
       secure = HttpCertificatePinning.check(
-        serverURL: options.baseUrl,
-        headerHttp: options.headers.map((a, b) => MapEntry(a, b.toString())),
+        serverURL: baseUrl,
+        headerHttp: {},
         sha: SHA.SHA256,
         allowedSHAFingerprints: _allowedSHAFingerprints,
         timeout: _timeout,
@@ -46,11 +47,10 @@ class CertificatePinningInterceptor extends Interceptor {
       final secureString = await secure ?? '';
 
       if (secureString.contains('CONNECTION_SECURE')) {
-        verifiedURLs.add(options.baseUrl);
         return super.onRequest(options, handler);
       } else {
         handler.reject(
-          DioError(
+          DioException(
             requestOptions: options,
             error: CertificateNotVerifiedException(),
           ),
@@ -66,7 +66,7 @@ class CertificatePinningInterceptor extends Interceptor {
       }
 
       handler.reject(
-        DioError(
+        DioException(
           requestOptions: options,
           error: error,
         ),
