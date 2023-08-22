@@ -137,7 +137,7 @@ public class SwiftHttpCertificatePinningPlugin: NSObject, FlutterPlugin {
             } else {
                 flutterResult(
                     FlutterError(
-                        code: "CONNECTION_INSECURE",
+                        code: "CONNECTION_NOT_SECURE",
                         message: nil,
                         details: nil
                     )

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
@@ -10,6 +11,8 @@ class SecureHttpClient extends http.BaseClient {
   List<String> allowedSHAFingerprints;
 
   http.BaseClient _client = IOClient();
+
+  Future<String>? secure = Future.value('');
 
   SecureHttpClient._internal(
       {required this.allowedSHAFingerprints, http.BaseClient? customClient}) {
@@ -67,15 +70,24 @@ class SecureHttpClient extends http.BaseClient {
   Future<Response> _sendUnstreamed(
       String method, url, Map<String, String>? headers,
       [body, Encoding? encoding]) async {
-    final secure = await (HttpCertificatePinning.check(
+
+    // iOS bug: Alamofire is failing to return parallel requests for certificate validation
+    if (Platform.isIOS && secure != null) {
+      await secure;
+    }
+
+    secure =  HttpCertificatePinning.check(
       serverURL: url.toString(),
       headerHttp: headers,
       sha: SHA.SHA256,
       allowedSHAFingerprints: allowedSHAFingerprints,
       timeout: 50,
-    ));
+    );
 
-    if (secure.contains("CONNECTION_SECURE")) {
+    secure?.whenComplete(() => secure = null);
+    final secureString = await secure ?? '';
+
+    if (secureString.contains("CONNECTION_SECURE")) {
       var request = Request(method, _fromUriOrString(url));
 
       if (headers != null) request.headers.addAll(headers);
@@ -94,7 +106,7 @@ class SecureHttpClient extends http.BaseClient {
 
       return Response.fromStream(await send(request));
     } else {
-      throw Exception("CONNECTION_NOT_SECURE");
+      throw CertificateNotVerifiedException();
     }
   }
 
