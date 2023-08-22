@@ -72,11 +72,9 @@ public class HttpCertificatePinningPlugin : FlutterPlugin, MethodCallHandler {
     val allowedFingerprints: List<String> = arguments.get("fingerprints") as List<String>
     val httpHeaderArgs: Map<String, String> = arguments.get("headers") as Map<String, String>
     val timeout: Int = arguments.get("timeout") as Int
-    // Nullable to support retro-compatibility, if not passed we pin the leaf (index 0)
-    val index: Int? = arguments.get("index") as Int?
     val type: String = arguments.get("type") as String
 
-    if (this.checkConnexion(serverURL, allowedFingerprints, httpHeaderArgs, timeout, index ?: 0, type)) {
+    if (this.checkConnexion(serverURL, allowedFingerprints, httpHeaderArgs, timeout, type)) {
       handler?.post {
         result.success("CONNECTION_SECURE")
       }
@@ -89,13 +87,13 @@ public class HttpCertificatePinningPlugin : FlutterPlugin, MethodCallHandler {
   }
 
 
-  private fun checkConnexion(serverURL: String, allowedFingerprints: List<String>, httpHeaderArgs: Map<String, String>, timeout: Int, index: Int, type: String): Boolean {
-    val sha: String = this.getFingerprint(serverURL, timeout, httpHeaderArgs, type, index)
+  private fun checkConnexion(serverURL: String, allowedFingerprints: List<String>, httpHeaderArgs: Map<String, String>, timeout: Int, type: String): Boolean {
+    val sha: String = this.getFingerprint(serverURL, timeout, httpHeaderArgs, type)
     return allowedFingerprints.map { fp -> fp.toUpperCase().replace("\\s".toRegex(), "") }.contains(sha)
   }
 
   @Throws(IOException::class, NoSuchAlgorithmException::class, CertificateException::class, CertificateEncodingException::class, SocketTimeoutException::class)
-  private fun getFingerprint(httpsURL: String, connectTimeout: Int, httpHeaderArgs: Map<String, String>, type: String, certChainIndex: Int): String {
+  private fun getFingerprint(httpsURL: String, connectTimeout: Int, httpHeaderArgs: Map<String, String>, type: String): String {
 
     val url = URL(httpsURL)
     val httpClient: HttpsURLConnection = url.openConnection() as HttpsURLConnection
@@ -111,14 +109,7 @@ public class HttpCertificatePinningPlugin : FlutterPlugin, MethodCallHandler {
       return ""
     }
 
-    // Means certChainIndex is out of range
-    if (httpClient.serverCertificates.size < certChainIndex)
-    {
-      println("INDEX PASSED IS OUT OF RANGE. CERTIFICATE CHAIN LENGTH IS: ${httpClient.serverCertificates.size}")
-      return "";
-    }
-
-    val cert: Certificate = httpClient.serverCertificates[certChainIndex] as Certificate
+    val cert: Certificate = httpClient.serverCertificates[0] as Certificate
     return this.hashString(type, cert.encoded)
   }
 

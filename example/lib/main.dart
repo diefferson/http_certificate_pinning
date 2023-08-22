@@ -15,7 +15,6 @@ class _PiningSslData {
   Map<String, String> headerHttp = {};
   String allowedSHAFingerprint = '';
   int timeout = 0;
-  int? index;
   SHA? sha;
 }
 
@@ -30,8 +29,13 @@ class _MyAppState extends State<MyApp> {
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
-  check(String url, String fingerprint, SHA sha, Map<String, String> headerHttp,
-      int timeout, int? index) async {
+  check(
+    String url,
+    String fingerprint,
+    SHA sha,
+    Map<String, String> headerHttp,
+    int timeout,
+  ) async {
     List<String> allowedShA1FingerprintList = [];
     allowedShA1FingerprintList.add(fingerprint);
 
@@ -42,8 +46,7 @@ class _MyAppState extends State<MyApp> {
           headerHttp: headerHttp,
           sha: sha,
           allowedSHAFingerprints: allowedShA1FingerprintList,
-          timeout: timeout,
-          index: index);
+          timeout: timeout);
 
       // If the widget was removed from the tree while the asynchronous platform
       // message was in flight, we want to discard the reply rather than calling
@@ -74,12 +77,12 @@ class _MyAppState extends State<MyApp> {
       _formKey.currentState?.save(); // Save our form now.
 
       check(
-          _data.serverURL,
-          _data.allowedSHAFingerprint,
-          _data.sha ?? SHA.SHA256,
-          _data.headerHttp,
-          _data.timeout,
-          _data.index);
+        _data.serverURL,
+        _data.allowedSHAFingerprint,
+        _data.sha ?? SHA.SHA256,
+        _data.headerHttp,
+        _data.timeout,
+      );
     }
   }
 
@@ -170,17 +173,6 @@ class _MyAppState extends State<MyApp> {
                       },
                       onSaved: (value) {
                         _data.timeout = int.tryParse(value ?? '') ?? 0;
-                      },
-                    ),
-                    TextFormField(
-                      keyboardType: TextInputType.number,
-                      initialValue: '0',
-                      decoration: const InputDecoration(
-                        hintText: '0 for the leaf, usually 2 or 3 for the root',
-                        labelText: 'Index',
-                      ),
-                      onSaved: (value) {
-                        _data.index = int.tryParse(value ?? '');
                       },
                     ),
                     Container(
