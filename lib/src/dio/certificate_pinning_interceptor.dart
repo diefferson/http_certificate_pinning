@@ -31,7 +31,7 @@ class CertificatePinningInterceptor extends Interceptor {
 
       secure = HttpCertificatePinning.check(
         serverURL: options.baseUrl,
-        headerHttp: options.headers.map((a, b) => MapEntry(a, b.toString())),
+        headerHttp: {},
         sha: SHA.SHA256,
         allowedSHAFingerprints: _allowedSHAFingerprints,
         timeout: _timeout,

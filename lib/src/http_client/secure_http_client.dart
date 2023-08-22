@@ -78,7 +78,7 @@ class SecureHttpClient extends http.BaseClient {
 
     secure =  HttpCertificatePinning.check(
       serverURL: url.toString(),
-      headerHttp: headers,
+      headerHttp: {},
       sha: SHA.SHA256,
       allowedSHAFingerprints: allowedSHAFingerprints,
       timeout: 50,
