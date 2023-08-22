@@ -97,7 +97,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "2.0.7"
+    version: "2.1.1"
   http_parser:
     dependency: transitive
     description:
@@ -225,3 +225,4 @@ packages:
     version: "0.1.4-beta"
 sdks:
   dart: ">=3.1.0-185.0.dev <4.0.0"
+  flutter: ">=1.12.0"

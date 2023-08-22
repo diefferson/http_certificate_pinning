@@ -56,3 +56,7 @@ Bumping Kotlin version
 Bumping SDK version to >=3.0.0 < 4.0.0
 Bumping http version to 1.1.0
 Bumping Dio version to 5.3.2
+
+## 2.1.1
+
+Closing opened issues
