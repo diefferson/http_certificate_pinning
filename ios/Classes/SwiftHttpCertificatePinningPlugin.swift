@@ -6,7 +6,6 @@ import Alamofire
 public class SwiftHttpCertificatePinningPlugin: NSObject, FlutterPlugin {
 
     let manager = Alamofire.SessionManager.default
-    var index: Int? = nil
     var fingerprints: Array<String>?
     var flutterResult: FlutterResult?
 
@@ -62,10 +61,6 @@ public class SwiftHttpCertificatePinningPlugin: NSObject, FlutterPlugin {
             timeout = timeoutArg
         }
         
-        if let indexArg = args["index"] as? Int {
-            self.index = indexArg
-        }
-        
         let manager = Alamofire.SessionManager(
             configuration: URLSessionConfiguration.default
         )
@@ -95,10 +90,9 @@ public class SwiftHttpCertificatePinningPlugin: NSObject, FlutterPlugin {
             // To retain
             let _ = manager
         }
-        
+
         manager.delegate.sessionDidReceiveChallenge = { session, challenge in
-            guard let serverTrust = challenge.protectionSpace.serverTrust else {
-                // Handle the case where serverTrust is nil
+            guard let serverTrust = challenge.protectionSpace.serverTrust, let certificate = SecTrustGetCertificateAtIndex(serverTrust, 0) else {
                 flutterResult(
                     FlutterError(
                         code: "ERROR CERT",
@@ -106,38 +100,9 @@ public class SwiftHttpCertificatePinningPlugin: NSObject, FlutterPlugin {
                         details: nil
                     )
                 )
+                
                 return (.cancelAuthenticationChallenge, nil)
             }
-            
-            // As default we check the leaf fingerprint (certificateCount - 1)
-            // If the user specifies an index (1 for the root) we perform the check there
-            let certificateCount = SecTrustGetCertificateCount(serverTrust)
-            let unwrappedIndex = (self.index == nil || self.index == 0) ? certificateCount - 1 : self.index!
-            let certificateIndex = certificateCount - unwrappedIndex
-            
-            guard certificateIndex >= 0 else {
-                // Handle the case where there are no certificates in the chain
-                flutterResult(
-                    FlutterError(
-                        code: "ERROR CERT",
-                        message: "Invalid Certificate - No certificates in the chain",
-                        details: nil
-                    )
-                )
-                return (.cancelAuthenticationChallenge, nil)
-            }
-            
-            guard let certificate = SecTrustGetCertificateAtIndex(serverTrust, certificateIndex) else {
-                // Handle the case where the certificate cannot be retrieved
-                flutterResult(
-                    FlutterError(
-                        code: "ERROR CERT",
-                        message: "Invalid Certificate - Cannot be retrieved in the chain",
-                        details: nil
-                    )
-                )
-                return (.cancelAuthenticationChallenge, nil)
-            }    
 
             // Set SSL policies for domain name check
             let policies: [SecPolicy] = [SecPolicyCreateSSL(true, (challenge.protectionSpace.host as CFString))]
