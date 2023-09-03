@@ -8,7 +8,6 @@ import 'package:http_certificate_pinning/http_certificate_pinning.dart';
 class CertificatePinningInterceptor extends Interceptor {
   final List<String> _allowedSHAFingerprints;
   final int _timeout;
-  final Set<String> verifiedURLs = {};
   final bool callFollowingErrorInterceptor;
   Future<String>? secure = Future.value('');
 
