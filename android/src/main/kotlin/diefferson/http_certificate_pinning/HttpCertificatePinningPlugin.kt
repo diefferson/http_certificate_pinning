@@ -1,6 +1,6 @@
 package diefferson.http_certificate_pinning
 
-
+import java.net.UnknownHostException
 import android.os.Handler
 import android.os.Looper
 import android.os.StrictMode
@@ -64,9 +64,7 @@ public class HttpCertificatePinningPlugin : FlutterPlugin, MethodCallHandler {
     }
   }
 
-  @Throws(ParseException::class)
   private fun handleCheckEvent(call: MethodCall, result: Result) {
-
     val arguments: HashMap<String, Any> = call.arguments as HashMap<String, Any>
     val serverURL: String = arguments.get("url") as String
     val allowedFingerprints: List<String> = arguments.get("fingerprints") as List<String>
@@ -74,16 +72,33 @@ public class HttpCertificatePinningPlugin : FlutterPlugin, MethodCallHandler {
     val timeout: Int = arguments.get("timeout") as Int
     val type: String = arguments.get("type") as String
 
-    if (this.checkConnexion(serverURL, allowedFingerprints, httpHeaderArgs, timeout, type)) {
-      handler?.post {
-        result.success("CONNECTION_SECURE")
+    try {
+      if (this.checkConnexion(serverURL, allowedFingerprints, httpHeaderArgs, timeout, type)) {
+        handler?.post {
+          result.success("CONNECTION_SECURE")
+        }
+      } else {
+        handler?.post {
+          result.error("CONNECTION_NOT_SECURE", "Connection is not secure", "Fingerprint doesn't match")
+        }
       }
-    } else {
+    } catch (e: UnknownHostException) {
       handler?.post {
-        result.error("CONNECTION_NOT_SECURE", "Connection is not secure", "Fingerprint doesn't match")
+        result.error("NO_INTERNET", "No Internet Connection", e.localizedMessage)
+      }
+    } catch (e: SocketTimeoutException) {
+      handler?.post {
+        result.error("TIMEOUT", "Connection Timeout", e.localizedMessage)
+      }
+    } catch (e: IOException) {
+      handler?.post {
+        result.error("NETWORK_ERROR", "Network Error", e.localizedMessage)
+      }
+    } catch (e: Exception) {
+      handler?.post {
+        result.error("UNKNOWN_ERROR", "An Unknown Error Occurred", e.localizedMessage)
       }
     }
-
   }
 
 
@@ -101,13 +116,7 @@ public class HttpCertificatePinningPlugin : FlutterPlugin, MethodCallHandler {
       httpClient.connectTimeout = connectTimeout * 1000
     httpHeaderArgs.forEach { (key, value) -> httpClient.setRequestProperty(key, value) }
 
-    try {
-      httpClient.connect()
-    } catch (socket: SocketTimeoutException) {
-      return ""
-    } catch (io: IOException) {
-      return ""
-    }
+    httpClient.connect()
 
     val cert: Certificate = httpClient.serverCertificates[0] as Certificate
     return this.hashString(type, cert.encoded)
