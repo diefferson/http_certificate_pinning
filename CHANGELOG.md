@@ -60,3 +60,7 @@ Bumping Dio version to 5.3.2
 ## 2.1.1
 
 Closing opened issues
+
+## 2.1.2
+
+Android network error
