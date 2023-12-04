@@ -1,0 +1,33 @@
+PODS:
+  - Alamofire (4.9.1)
+  - CryptoSwift (1.8.0)
+  - Flutter (1.0.0)
+  - http_certificate_pinning (1.0.3):
+    - Alamofire (~> 4.9.1)
+    - CryptoSwift
+    - Flutter
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - http_certificate_pinning (from `.symlinks/plugins/http_certificate_pinning/ios`)
+
+SPEC REPOS:
+  trunk:
+    - Alamofire
+    - CryptoSwift
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  http_certificate_pinning:
+    :path: ".symlinks/plugins/http_certificate_pinning/ios"
+
+SPEC CHECKSUMS:
+  Alamofire: 85e8a02c69d6020a0d734f6054870d7ecb75cf18
+  CryptoSwift: 52aaf3fce7337552863b1d952e408085f0e65030
+  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
+  http_certificate_pinning: 2a9097b304c7ea3b51804af46d381aba8108fa29
+
+PODFILE CHECKSUM: 70d9d25280d0dd177a5f637cdb0f0b0b12c6a189
+
+COCOAPODS: 1.11.3
