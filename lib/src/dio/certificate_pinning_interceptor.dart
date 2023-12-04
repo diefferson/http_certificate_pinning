@@ -20,6 +20,7 @@ class CertificatePinningInterceptor extends Interceptor {
             : <String>[],
         _timeout = timeout;
 
+
   @override
   Future onRequest(
     RequestOptions options,
@@ -56,6 +57,7 @@ class CertificatePinningInterceptor extends Interceptor {
             requestOptions: options,
             error: CertificateNotVerifiedException(),
           ),
+          callFollowingErrorInterceptor,
         );
       }
     } on Exception catch (e) {
