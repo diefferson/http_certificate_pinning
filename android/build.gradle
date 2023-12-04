@@ -5,7 +5,7 @@ buildscript {
     ext.kotlin_version = '1.9.0'
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 
     dependencies {
@@ -17,7 +17,7 @@ buildscript {
 rootProject.allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 }
 
@@ -25,7 +25,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 33
+    compileSdk 34
     namespace = "diefferson.http_certificate_pinning"
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
