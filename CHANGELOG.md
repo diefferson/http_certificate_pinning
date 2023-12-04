@@ -64,3 +64,7 @@ Closing opened issues
 ## 2.1.2
 
 Android network error
+
+## 2.1.3
+
+Bumping libraries and frameworks versions
