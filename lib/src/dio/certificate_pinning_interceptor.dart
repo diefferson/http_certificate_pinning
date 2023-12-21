@@ -20,7 +20,6 @@ class CertificatePinningInterceptor extends Interceptor {
             : <String>[],
         _timeout = timeout;
 
-
   @override
   Future onRequest(
     RequestOptions options,
@@ -46,10 +45,9 @@ class CertificatePinningInterceptor extends Interceptor {
         timeout: _timeout,
       );
 
-      secure?.whenComplete(() => secure = null);
-      final secureString = await secure ?? '';
+      final secureString = await secure?.whenComplete(() => secure = null);
 
-      if (secureString.contains('CONNECTION_SECURE')) {
+      if (secureString?.contains('CONNECTION_SECURE') ?? false) {
         return super.onRequest(options, handler);
       } else {
         handler.reject(
