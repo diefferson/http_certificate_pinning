@@ -63,6 +63,13 @@ class CertificatePinningInterceptor extends Interceptor {
 
       if (e is PlatformException && e.code == 'CONNECTION_NOT_SECURE') {
         error = const CertificateNotVerifiedException();
+      } else if (e is PlatformException && e.code == 'NO_INTERNET') {
+        return handler.reject(
+          DioException.connectionError(
+            requestOptions: options,
+            reason: 'NO_INTERNET',
+          ),
+        );
       } else {
         error = CertificateCouldNotBeVerifiedException(e);
       }
