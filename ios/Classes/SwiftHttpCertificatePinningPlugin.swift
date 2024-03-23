@@ -134,7 +134,7 @@ public class SwiftHttpCertificatePinningPlugin: NSObject, FlutterPlugin {
                 flutterResult(
                     FlutterError(
                         code: "CONNECTION_NOT_SECURE",
-                        message: "serverCertSha: \(serverCertSha) - fingerprints: \(fingerprints)",
+                        message: nil,
                         details: nil
                     )
                 )
