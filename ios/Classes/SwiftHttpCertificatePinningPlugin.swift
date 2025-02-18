@@ -5,7 +5,7 @@ import Alamofire
 
 public class SwiftHttpCertificatePinningPlugin: NSObject, FlutterPlugin {
 
-    let manager = Alamofire.SessionManager.default
+    let manager = Alamofire.Session.default
     var fingerprints: Array<String>?
     var flutterResult: FlutterResult?
 
@@ -61,7 +61,7 @@ public class SwiftHttpCertificatePinningPlugin: NSObject, FlutterPlugin {
             timeout = timeoutArg
         }
         
-        let manager = Alamofire.SessionManager(
+        let manager = Alamofire.Session(
             configuration: URLSessionConfiguration.default
         )
         
