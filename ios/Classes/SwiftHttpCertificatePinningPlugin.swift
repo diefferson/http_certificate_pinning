@@ -5,8 +5,8 @@ import Alamofire
 
 public class SwiftHttpCertificatePinningPlugin: NSObject, FlutterPlugin {
 
-    let manager = Alamofire.Session.default
-    var fingerprints: Array<String>?
+    var session: Session!
+    var fingerprints: [String]?
     var flutterResult: FlutterResult?
 
     public static func register(with registrar: FlutterPluginRegistrar) {
@@ -16,19 +16,19 @@ public class SwiftHttpCertificatePinningPlugin: NSObject, FlutterPlugin {
     }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        switch (call.method) {
-            case "check":
-                if let _args = call.arguments as? Dictionary<String, AnyObject> {
-                    self.check(call: call, args: _args, flutterResult: result)
-                } else {
-                    result(
-                        FlutterError(
-                            code: "Invalid Arguments",
-                            message: "Please specify arguments",
-                            details: nil)
+        switch call.method {
+        case "check":
+            if let args = call.arguments as? [String: Any] {
+                self.check(call: call, args: args, flutterResult: result)
+            } else {
+                result(
+                    FlutterError(
+                        code: "Invalid Arguments",
+                        message: "Please specify arguments",
+                        details: nil
                     )
-                }
-                break
+                )
+            }
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -36,12 +36,12 @@ public class SwiftHttpCertificatePinningPlugin: NSObject, FlutterPlugin {
 
     public func check(
         call: FlutterMethodCall,
-        args: Dictionary<String, AnyObject>,
+        args: [String: Any],
         flutterResult: @escaping FlutterResult
-    ){
+    ) {
         guard let urlString = args["url"] as? String,
-              let headers = args["headers"] as? Dictionary<String, String>,
-              let fingerprints = args["fingerprints"] as? Array<String>,
+              let headers = args["headers"] as? [String: String],
+              let fingerprints = args["fingerprints"] as? [String],
               let type = args["type"] as? String
         else {
             flutterResult(
@@ -56,25 +56,25 @@ public class SwiftHttpCertificatePinningPlugin: NSObject, FlutterPlugin {
 
         self.fingerprints = fingerprints
 
-        var timeout = 60
-        if let timeoutArg = args["timeout"] as? Int {
-            timeout = timeoutArg
-        }
-        
-        let manager = Alamofire.Session(
-            configuration: URLSessionConfiguration.default
-        )
-        
-        var resultDispatched = false;
-        
-        manager.session.configuration.timeoutIntervalForRequest = TimeInterval(timeout)
-        
-        manager.request(urlString, method: .get, parameters: headers).validate().responseJSON() { response in
+        let timeout = args["timeout"] as? Int ?? 60
+
+        // Configuração da sessão com delegate personalizado
+        let configuration = URLSessionConfiguration.default
+        configuration.timeoutIntervalForRequest = TimeInterval(timeout)
+
+        session = Session(configuration: configuration)
+
+        var resultDispatched = false
+
+        session.request(urlString, method: .get, headers: HTTPHeaders(headers)).validate().responseJSON { response in
             switch response.result {
-                case .success:
-                    break
+            case .success:
+                if !resultDispatched {
+                    flutterResult("CONNECTION_SECURE")
+                    resultDispatched = true
+                }
             case .failure(let error):
-                if (!resultDispatched) {
+                if !resultDispatched {
                     flutterResult(
                         FlutterError(
                             code: "URL Format",
@@ -82,17 +82,15 @@ public class SwiftHttpCertificatePinningPlugin: NSObject, FlutterPlugin {
                             details: nil
                         )
                     )
-               }
-                   
-                break
+                    resultDispatched = true
+                }
             }
-            
-            // To retain
-            let _ = manager
         }
 
-        manager.delegate.taskDidReceiveChallenge = { session, task, challenge in
-            guard let serverTrust = challenge.protectionSpace.serverTrust, let certificate = SecTrustGetCertificateAtIndex(serverTrust, 0) else {
+        // Configuração do delegate para lidar com desafios de autenticação
+        session.delegate.taskDidReceiveChallenge = { session, task, challenge in
+            guard let serverTrust = challenge.protectionSpace.serverTrust,
+                  let certificate = SecTrustGetCertificateAtIndex(serverTrust, 0) else {
                 flutterResult(
                     FlutterError(
                         code: "ERROR CERT",
@@ -100,49 +98,47 @@ public class SwiftHttpCertificatePinningPlugin: NSObject, FlutterPlugin {
                         details: nil
                     )
                 )
-                
                 return (.cancelAuthenticationChallenge, nil)
             }
 
-            // Set SSL policies for domain name check
-            let policies: [SecPolicy] = [SecPolicyCreateSSL(true, (challenge.protectionSpace.host as CFString))]
+            // Define políticas SSL para verificação de nome de domínio
+            let policies = [SecPolicyCreateSSL(true, challenge.protectionSpace.host as CFString)]
             SecTrustSetPolicies(serverTrust, policies as CFTypeRef)
 
-            // Evaluate server certificate
+            // Avalia o certificado do servidor
             var result: SecTrustResultType = .invalid
             SecTrustEvaluate(serverTrust, &result)
-            let isServerTrusted: Bool = (result == .unspecified || result == .proceed)
+            let isServerTrusted = (result == .unspecified || result == .proceed)
 
+            // Obtém o hash do certificado
             let serverCertData = SecCertificateCopyData(certificate) as Data
-            var serverCertSha = serverCertData.sha256().toHexString()
+            var serverCertHash = serverCertData.sha256().toHexString()
 
-            if(type == "SHA1"){
-                serverCertSha = serverCertData.sha1().toHexString()
+            if type == "SHA1" {
+                serverCertHash = serverCertData.sha1().toHexString()
             }
 
-            var isSecure = false
-            if var fp = self.fingerprints {
-                fp = fp.compactMap { (val) -> String? in
-                    val.replacingOccurrences(of: " ", with: "")
-            }
-
-                isSecure = fp.contains(where: { (value) -> Bool in
-                    value.caseInsensitiveCompare(serverCertSha) == .orderedSame
-                })
-            }
+            // Verifica se o hash do certificado está na lista de fingerprints
+            let isSecure = self.fingerprints?.contains { fingerprint in
+                fingerprint.replacingOccurrences(of: " ", with: "").caseInsensitiveCompare(serverCertHash) == .orderedSame
+            } ?? false
 
             if isServerTrusted && isSecure {
-                flutterResult("CONNECTION_SECURE")
-                resultDispatched = true
+                if !resultDispatched {
+                    flutterResult("CONNECTION_SECURE")
+                    resultDispatched = true
+                }
             } else {
-                flutterResult(
-                    FlutterError(
-                        code: "CONNECTION_NOT_SECURE",
-                        message: nil,
-                        details: nil
+                if !resultDispatched {
+                    flutterResult(
+                        FlutterError(
+                            code: "CONNECTION_NOT_SECURE",
+                            message: nil,
+                            details: nil
+                        )
                     )
-                )
-                resultDispatched = true
+                    resultDispatched = true
+                }
             }
 
             return (.cancelAuthenticationChallenge, nil)
