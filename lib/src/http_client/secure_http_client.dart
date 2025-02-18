@@ -2,10 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:http/io_client.dart';
-import 'package:http_certificate_pinning/http_certificate_pinning.dart';
+import 'package:http_certificate_pinning_plus/http_certificate_pinning_plus.dart';
 
 class SecureHttpClient extends http.BaseClient {
   List<String> allowedSHAFingerprints;
@@ -70,13 +71,12 @@ class SecureHttpClient extends http.BaseClient {
   Future<Response> _sendUnstreamed(
       String method, url, Map<String, String>? headers,
       [body, Encoding? encoding]) async {
-
     // iOS bug: Alamofire is failing to return parallel requests for certificate validation
     if (Platform.isIOS && secure != null) {
       await secure;
     }
 
-    secure =  HttpCertificatePinning.check(
+    secure = HttpCertificatePinning.check(
       serverURL: url.toString(),
       headerHttp: {},
       sha: SHA.SHA256,

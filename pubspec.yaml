@@ -1,7 +1,7 @@
-name: http_certificate_pinning
+name: http_certificate_pinning_plus
 description: Https Certificate pinning for Flutter. Checks the equality between the known SHA-1 or SHA-256 fingerprint and the SHA-1 or SHA-256 of the target server.
-version: 2.1.3
-homepage: https://github.com/diefferson/http_certificate_pinning
+version: 1.0.0
+homepage: https://github.com/gguerran/http_certificate_pinning_plus
 
 environment:
   sdk: ">=3.2.0 <4.0.0"
@@ -22,7 +22,7 @@ flutter:
   plugin:
     platforms:
       android:
-        package: diefferson.http_certificate_pinning
+        package: gguerran.http_certificate_pinning_plus
         pluginClass: HttpCertificatePinningPlugin
       ios:
         pluginClass: HttpCertificatePinningPlugin
