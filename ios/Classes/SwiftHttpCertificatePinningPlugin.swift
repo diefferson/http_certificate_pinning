@@ -82,8 +82,7 @@ class CustomServerTrustEvaluator: ServerTrustEvaluating {
         let isSecure = allowedFingerprints.contains { $0.caseInsensitiveCompare(serverCertSha) == .orderedSame }
 
         if !isSecure {
-            let failureReason = AFError.ServerTrustFailureReason.defaultEvaluationFailed(output: .hostValidationFailed(host: host))
-            throw AFError.serverTrustEvaluationFailed(reason: failureReason)
+            throw AFError.serverTrustEvaluationFailed(reason: .defaultEvaluationFailed(output: .hostValidationFailed))
         }
     }
 }
