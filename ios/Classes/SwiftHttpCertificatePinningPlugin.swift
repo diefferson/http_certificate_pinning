@@ -91,7 +91,7 @@ public class SwiftHttpCertificatePinningPlugin: NSObject, FlutterPlugin {
             let _ = manager
         }
 
-        manager.delegate.sessionDidReceiveChallenge = { session, challenge in
+        manager.delegate.taskDidReceiveChallenge = { session, task, challenge in
             guard let serverTrust = challenge.protectionSpace.serverTrust, let certificate = SecTrustGetCertificateAtIndex(serverTrust, 0) else {
                 flutterResult(
                     FlutterError(
