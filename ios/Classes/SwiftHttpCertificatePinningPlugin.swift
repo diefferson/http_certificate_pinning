@@ -82,7 +82,7 @@ class CustomServerTrustEvaluator: ServerTrustEvaluating {
         let isSecure = allowedFingerprints.contains { $0.caseInsensitiveCompare(serverCertSha) == .orderedSame }
 
         if !isSecure {
-            throw AFError.serverTrustEvaluationFailed(reason: .certificatePinningFailed)
+            throw AFError.serverTrustEvaluationFailed(reason: .noPublicKeysFound)
         }
     }
 }
