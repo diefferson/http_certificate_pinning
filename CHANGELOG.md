@@ -68,3 +68,7 @@ Android network error
 ## 2.1.3
 
 Bumping libraries and frameworks versions
+
+## 2.1.4
+
+Support for Flutter 3.29.0
