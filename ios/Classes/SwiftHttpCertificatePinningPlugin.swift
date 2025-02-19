@@ -39,7 +39,7 @@ public class SwiftHttpCertificatePinningPlugin: NSObject, FlutterPlugin {
         self.fingerprints = fingerprints.map { $0.replacingOccurrences(of: " ", with: "") }
         let timeout = (args["timeout"] as? Int) ?? 60
         
-        // Configuração do ServerTrustManager para validar o certificado
+        // Configure ServerTrustManager to validate the certificate
         let serverTrustManager = ServerTrustManager(evaluators: [
             urlString: CustomServerTrustEvaluator(allowedFingerprints: self.fingerprints!, hashType: type)
         ])
@@ -57,7 +57,7 @@ public class SwiftHttpCertificatePinningPlugin: NSObject, FlutterPlugin {
     }
 }
 
-// Classe personalizada para validar o certificado com SHA-256 ou SHA-1
+// Custom class to validate certificate with SHA-256 or SHA-1
 class CustomServerTrustEvaluator: ServerTrustEvaluating {
     let allowedFingerprints: [String]
     let hashType: String
