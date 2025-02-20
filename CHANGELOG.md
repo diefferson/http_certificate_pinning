@@ -68,3 +68,7 @@ Android network error
 ## 2.1.3
 
 Bumping libraries and frameworks versions
+
+## 3.0.0
+
+Upgrading to last plugin interface
