@@ -72,3 +72,4 @@ Bumping libraries and frameworks versions
 ## 3.0.0
 
 Upgrading to last plugin interface
+Bumping Alamofire version to 5.9.0
