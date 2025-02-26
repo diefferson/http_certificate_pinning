@@ -1,9 +1,9 @@
 PODS:
-  - Alamofire (4.9.1)
+  - Alamofire (5.9.1)
   - CryptoSwift (1.8.4)
   - Flutter (1.0.0)
-  - http_certificate_pinning (1.0.3):
-    - Alamofire (~> 4.9.1)
+  - http_certificate_pinning (3.0.0):
+    - Alamofire (~> 5.9.0)
     - CryptoSwift
     - Flutter
   - integration_test (0.0.1):
@@ -28,10 +28,10 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/integration_test/ios"
 
 SPEC CHECKSUMS:
-  Alamofire: 85e8a02c69d6020a0d734f6054870d7ecb75cf18
+  Alamofire: f36a35757af4587d8e4f4bfa223ad10be2422b8c
   CryptoSwift: e64e11850ede528a02a0f3e768cec8e9d92ecb90
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  http_certificate_pinning: 2a9097b304c7ea3b51804af46d381aba8108fa29
+  http_certificate_pinning: e0fea5deb9c56c234be0e09fe6991355a39c92e1
   integration_test: 252f60fa39af5e17c3aa9899d35d908a0721b573
 
 PODFILE CHECKSUM: 819463e6a0290f5a72f145ba7cde16e8b6ef0796

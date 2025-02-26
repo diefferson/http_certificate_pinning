@@ -4,7 +4,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'http_certificate_pinning'
-  s.version          = '1.0.3'
+  s.version          = '3.0.0'
   s.summary          = 'Https Certificate pinning for Flutter'
   s.description      = <<-DESC
 Https Certificate pinning for Flutter

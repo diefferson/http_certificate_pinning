@@ -3,14 +3,14 @@ import UIKit
 import CryptoSwift
 import Alamofire
 
-public class SwiftHttpCertificatePinningPlugin: NSObject, FlutterPlugin {
+public class HttpCertificatePinningPlugin: NSObject, FlutterPlugin {
 
     var fingerprints: Array<String>?
     var flutterResult: FlutterResult?
 
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "http_certificate_pinning", binaryMessenger: registrar.messenger())
-        let instance = SwiftHttpCertificatePinningPlugin()
+        let instance = HttpCertificatePinningPlugin()
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
 
