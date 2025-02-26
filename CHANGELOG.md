@@ -69,6 +69,11 @@ Android network error
 
 Bumping libraries and frameworks versions
 
-## 2.1.4
+## 3.0.0
+
+Upgrading to last plugin interface
+Bumping Alamofire version to 5.9.0
+
+## 3.0.1
 
 Support for Flutter 3.29.0

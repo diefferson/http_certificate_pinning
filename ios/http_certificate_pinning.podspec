@@ -4,7 +4,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'http_certificate_pinning'
-  s.version          = '1.0.3'
+  s.version          = '3.0.0'
   s.summary          = 'Https Certificate pinning for Flutter'
   s.description      = <<-DESC
 Https Certificate pinning for Flutter
@@ -16,7 +16,7 @@ Https Certificate pinning for Flutter
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'
   s.dependency 'CryptoSwift'
-  s.dependency 'Alamofire', '~> 4.9.1'
+  s.dependency 'Alamofire', '~> 5.9.0'
   s.platform = :ios, '8.0'
 
   # Flutter.framework does not contain a i386 slice. Only x86_64 simulators are supported.
