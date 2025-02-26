@@ -73,3 +73,7 @@ Bumping libraries and frameworks versions
 
 Upgrading to last plugin interface
 Bumping Alamofire version to 5.9.0
+
+## 3.0.1
+
+Support for Flutter 3.29.0
