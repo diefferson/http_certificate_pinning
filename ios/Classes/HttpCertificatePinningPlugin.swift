@@ -74,14 +74,17 @@ public class HttpCertificatePinningPlugin: NSObject, FlutterPlugin {
                     flutterResult("CONNECTION_SECURE")
                     break
             case .failure(let error):
-                flutterResult(
-                    FlutterError(
-                        code: "CONNECTION_NOT_SECURE",
-                        message: error.localizedDescription,
-                        details: nil
+                if let responseCode = error.responseCode, (200...599).contains(responseCode) {
+                    flutterResult("CONNECTION_SECURE")
+                } else {
+                    flutterResult(
+                        FlutterError(
+                            code: "CONNECTION_NOT_SECURE",
+                            message: error.localizedDescription,
+                            details: nil
+                        )
                     )
-                )
-
+                }
                 break
             }
 
