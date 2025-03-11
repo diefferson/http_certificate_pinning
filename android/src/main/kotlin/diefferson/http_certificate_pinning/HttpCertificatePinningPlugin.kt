@@ -95,23 +95,28 @@ public class HttpCertificatePinningPlugin : FlutterPlugin, MethodCallHandler {
 
 
   private fun checkConnexion(serverURL: String, allowedFingerprints: List<String>, httpHeaderArgs: Map<String, String>, timeout: Int, type: String): Boolean {
-    val sha: String = this.getFingerprint(serverURL, timeout, httpHeaderArgs, type)
-    return allowedFingerprints.map { fp -> fp.toUpperCase().replace("\\s".toRegex(), "") }.contains(sha)
+    val fingerprints: Set<String> = this.getFingerprints(serverURL, timeout, httpHeaderArgs, type)
+    val normalizedAllowedFingerprints = allowedFingerprints.map { fp -> fp.toUpperCase().replace("\\s".toRegex(), "") }
+
+    // Check if at least one fingerprint matches the allowed list
+    return fingerprints.any { fingerprint -> normalizedAllowedFingerprints.contains(fingerprint) }
   }
 
+
   @Throws(IOException::class, NoSuchAlgorithmException::class, CertificateException::class, CertificateEncodingException::class, SocketTimeoutException::class)
-  private fun getFingerprint(httpsURL: String, connectTimeout: Int, httpHeaderArgs: Map<String, String>, type: String): String {
+  private fun getFingerprints(httpsURL: String, connectTimeout: Int, httpHeaderArgs: Map<String, String>, type: String): Set<String> {
+      val url = URL(httpsURL)
+      val httpClient: HttpsURLConnection = url.openConnection() as HttpsURLConnection
+      if (connectTimeout > 0)
+          httpClient.connectTimeout = connectTimeout * 1000
+      httpHeaderArgs.forEach { (key, value) -> httpClient.setRequestProperty(key, value) }
 
-    val url = URL(httpsURL)
-    val httpClient: HttpsURLConnection = url.openConnection() as HttpsURLConnection
-    if (connectTimeout > 0)
-      httpClient.connectTimeout = connectTimeout * 1000
-    httpHeaderArgs.forEach { (key, value) -> httpClient.setRequestProperty(key, value) }
+      httpClient.connect()
 
-    httpClient.connect()
-
-    val cert: Certificate = httpClient.serverCertificates[0] as Certificate
-    return this.hashString(type, cert.encoded)
+      val fingerprints = httpClient.serverCertificates.map { cert ->
+          this.hashString(type, (cert as Certificate).encoded)
+      }.toSet() // Convert the list to a set to remove duplicates
+      return fingerprints
   }
 
   private fun hashString(type: String, input: ByteArray) =
