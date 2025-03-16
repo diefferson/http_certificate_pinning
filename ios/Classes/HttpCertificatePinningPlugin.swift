@@ -4,7 +4,6 @@ import CryptoSwift
 import Alamofire
 
 public class HttpCertificatePinningPlugin: NSObject, FlutterPlugin {
-
     var fingerprints: Array<String>?
     var flutterResult: FlutterResult?
 
@@ -16,18 +15,18 @@ public class HttpCertificatePinningPlugin: NSObject, FlutterPlugin {
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch (call.method) {
-            case "check":
-                if let _args = call.arguments as? Dictionary<String, AnyObject> {
-                    self.check(call: call, args: _args, flutterResult: result)
-                } else {
-                    result(
-                        FlutterError(
-                            code: "Invalid Arguments",
-                            message: "Please specify arguments",
-                            details: nil)
-                    )
-                }
-                break
+        case "check":
+            if let _args = call.arguments as? Dictionary<String, AnyObject> {
+                self.check(call: call, args: _args, flutterResult: result)
+            } else {
+                result(
+                    FlutterError(
+                        code: "Invalid Arguments",
+                        message: "Please specify arguments",
+                        details: nil)
+                )
+            }
+            break
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -70,9 +69,9 @@ public class HttpCertificatePinningPlugin: NSObject, FlutterPlugin {
 
         manager.request(urlString, method: .get, parameters: headers).validate().responseData() { response in
             switch response.result {
-                case .success:
-                    flutterResult("CONNECTION_SECURE")
-                    break
+            case .success:
+                flutterResult("CONNECTION_SECURE")
+                break
             case .failure(let error):
                 if let responseCode = error.responseCode, (200...599).contains(responseCode) {
                     flutterResult("CONNECTION_SECURE")
