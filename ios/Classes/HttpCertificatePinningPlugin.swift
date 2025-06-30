@@ -38,7 +38,8 @@ public class HttpCertificatePinningPlugin: NSObject, FlutterPlugin {
         flutterResult: @escaping FlutterResult
     ){
         guard let urlString = args["url"] as? String,
-              let host = URL(string: urlString)?.host,
+              let encodedUrlString = urlString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+              let host = URL(string: encodedUrlString)?.host,
               let headers = args["headers"] as? Dictionary<String, String>,
               let fingerprints = args["fingerprints"] as? Array<String>,
               let type = args["type"] as? String
