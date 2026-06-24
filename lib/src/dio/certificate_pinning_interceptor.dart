@@ -1,23 +1,31 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
-import 'package:http_certificate_pinning/http_certificate_pinning.dart';
+import 'package:http_certificate_pinning_plus/http_certificate_pinning_plus.dart';
 
 class CertificatePinningInterceptor extends Interceptor {
   final List<String> _allowedSHAFingerprints;
   final int _timeout;
+  final CertificatePinningTarget _certificatePinningTarget;
+  final Duration _cacheDuration;
   final bool callFollowingErrorInterceptor;
-  Future<String>? secure = Future.value('');
+  final SHA _sha;
 
   CertificatePinningInterceptor({
     List<String>? allowedSHAFingerprints,
     int timeout = 0,
+    SHA sha = SHA.SHA256,
+    CertificatePinningTarget certificatePinningTarget =
+        CertificatePinningTarget.leaf,
+    Duration cacheDuration = const Duration(minutes: 10),
     this.callFollowingErrorInterceptor = false,
   })  : _allowedSHAFingerprints = allowedSHAFingerprints != null
             ? allowedSHAFingerprints
             : <String>[],
+        _sha = sha,
+        _certificatePinningTarget = certificatePinningTarget,
+        _cacheDuration = cacheDuration,
         _timeout = timeout;
 
   @override
@@ -26,28 +34,23 @@ class CertificatePinningInterceptor extends Interceptor {
     RequestInterceptorHandler handler,
   ) async {
     try {
-      // iOS bug: Alamofire is failing to return parallel requests for certificate validation
-      if (Platform.isIOS && secure != null) {
-        await secure;
-      }
-
       var baseUrl = options.baseUrl;
 
       if (options.path.contains('http') || options.baseUrl.isEmpty) {
         baseUrl = options.path;
       }
 
-      secure = HttpCertificatePinning.check(
+      final secureString = await HttpCertificatePinning.check(
         serverURL: baseUrl,
         headerHttp: {},
-        sha: SHA.SHA256,
+        sha: _sha,
         allowedSHAFingerprints: _allowedSHAFingerprints,
+        certificatePinningTarget: _certificatePinningTarget,
+        cacheDuration: _cacheDuration,
         timeout: _timeout,
       );
 
-      final secureString = await secure?.whenComplete(() => secure = null);
-
-      if (secureString?.contains('CONNECTION_SECURE') ?? false) {
+      if (secureString.contains('CONNECTION_SECURE')) {
         return super.onRequest(options, handler);
       } else {
         handler.reject(
@@ -75,10 +78,7 @@ class CertificatePinningInterceptor extends Interceptor {
       }
 
       handler.reject(
-        DioException(
-          requestOptions: options,
-          error: error,
-        ),
+        DioException(requestOptions: options, error: error),
         callFollowingErrorInterceptor,
       );
     }

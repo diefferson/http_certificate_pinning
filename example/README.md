@@ -1,6 +1,6 @@
-# http_certificate_pinning_example
+# http_certificate_pinning_plus_example
 
-Demonstrates how to use the http_certificate_pinning plugin.
+Demonstrates how to use the http_certificate_pinning_plus plugin.
 
 ## Getting Started
 

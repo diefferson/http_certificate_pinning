@@ -5,11 +5,19 @@ import Alamofire
 
 
 final class CertificateSHAFingerprintTrustEvaluator: ServerTrustEvaluating {
+    private static let certificatePinningTargetRoot = "root"
+
     let pinnedFingerprints: [String]
     let type: String
+    let certificatePinningTarget: String
     
-    init(pinnedFingerprints: [String],  type: String) {
-        self.type = type
+    init(
+        pinnedFingerprints: [String],
+        type: String,
+        certificatePinningTarget: String
+    ) {
+        self.type = type.uppercased()
+        self.certificatePinningTarget = certificatePinningTarget.lowercased()
         self.pinnedFingerprints = pinnedFingerprints.map { $0.lowercased() }
     }
     
@@ -21,7 +29,21 @@ final class CertificateSHAFingerprintTrustEvaluator: ServerTrustEvaluating {
         SecTrustEvaluate(trust, &result)
         
         let isServerTrusted = (result == .unspecified || result == .proceed)
-        guard isServerTrusted, let certificate = SecTrustGetCertificateAtIndex(trust, 0) else {
+        let certificateCount = SecTrustGetCertificateCount(trust)
+        guard isServerTrusted, certificateCount > 0 else {
+            throw AFError.serverTrustEvaluationFailed(
+                reason: .trustEvaluationFailed(error: nil)
+            )
+        }
+
+        let certificateIndex: CFIndex
+        if certificatePinningTarget == Self.certificatePinningTargetRoot {
+            certificateIndex = certificateCount - 1
+        } else {
+            certificateIndex = 0
+        }
+
+        guard let certificate = SecTrustGetCertificateAtIndex(trust, certificateIndex) else {
             throw AFError.serverTrustEvaluationFailed(
                 reason: .trustEvaluationFailed(error: nil)
             )

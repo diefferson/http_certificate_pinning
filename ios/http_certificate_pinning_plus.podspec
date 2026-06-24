@@ -1,17 +1,17 @@
 #
 # To learn more about a Podspec see http://guides.cocoapods.org/syntax/podspec.html.
-# Run `pod lib lint http_certificate_pinning.podspec' to validate before publishing.
+# Run `pod lib lint http_certificate_pinning_plus.podspec' to validate before publishing.
 #
 Pod::Spec.new do |s|
-  s.name             = 'http_certificate_pinning'
-  s.version          = '3.0.0'
-  s.summary          = 'Https Certificate pinning for Flutter'
+  s.name             = 'http_certificate_pinning_plus'
+  s.version          = '3.1.0'
+  s.summary          = 'HTTPS certificate pinning for Flutter'
   s.description      = <<-DESC
-Https Certificate pinning for Flutter
+HTTPS certificate pinning for Flutter with leaf or root certificate fingerprint validation and in-memory check caching.
                        DESC
-  s.homepage         = 'https://github.com/diefferson/https_certificate_pinning'
+  s.homepage         = 'https://txtool.site'
   s.license          = { :file => '../LICENSE' }
-  s.author           = { 'Diefferson Santos' => 'diefferson.sts@gmail.com' }
+  s.author           = { 'txtool' => 'https://txtool.site' }
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'

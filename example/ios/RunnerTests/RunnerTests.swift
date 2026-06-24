@@ -3,7 +3,7 @@ import UIKit
 import XCTest
 
 
-@testable import http_certificate_pinning
+@testable import http_certificate_pinning_plus
 
 // This demonstrates a simple unit test of the Swift portion of this plugin's implementation.
 //

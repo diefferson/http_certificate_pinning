@@ -1,5 +1,5 @@
-group = "diefferson.http_certificate_pinning"
-version = "3.0.0"
+group = "site.txtool.http_certificate_pinning_plus"
+version = "3.1.0"
 
 buildscript {
     ext.kotlin_version = "1.9.0"
@@ -26,7 +26,7 @@ apply plugin: "kotlin-android"
 
 android {
     if (project.android.hasProperty("namespace")) {
-        namespace = "diefferson.http_certificate_pinning"
+        namespace = "site.txtool.http_certificate_pinning_plus"
     }
 
     compileSdk = 34

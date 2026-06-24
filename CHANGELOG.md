@@ -75,3 +75,21 @@ Upgrading to last plugin interface
 Bumping Alamofire version to 5.9.0
 Support for Flutter 3.29.0
 
+## 3.1.0
+
+Initial `http_certificate_pinning_plus` release.
+
+* Adds leaf or root certificate fingerprint validation.
+* Adds in-memory caching for successful certificate checks.
+* Coalesces concurrent checks for the same certificate identity.
+
+## 3.2.0
+
+* Fixes stale pending-check cleanup so completed checks cannot remove newer
+  in-flight validations.
+* Serializes native iOS certificate checks centrally to avoid wrapper-level
+  race conditions during concurrent requests.
+* Handles empty or non-X509 Android certificate chains safely when resolving
+  the validated chain.
+* Caches Android default trust manager and trust manager extensions for
+  repeated certificate chain validation.

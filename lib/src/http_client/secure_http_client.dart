@@ -1,31 +1,47 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
+
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:http/io_client.dart';
-import 'package:http_certificate_pinning/http_certificate_pinning.dart';
+import 'package:http_certificate_pinning_plus/http_certificate_pinning_plus.dart';
 
 class SecureHttpClient extends http.BaseClient {
   List<String> allowedSHAFingerprints;
+  CertificatePinningTarget certificatePinningTarget;
+  Duration cacheDuration;
+  SHA sha;
 
   http.BaseClient _client = IOClient();
 
-  Future<String>? secure = Future.value('');
-
-  SecureHttpClient._internal(
-      {required this.allowedSHAFingerprints, http.BaseClient? customClient}) {
+  SecureHttpClient._internal({
+    required this.allowedSHAFingerprints,
+    required this.sha,
+    required this.certificatePinningTarget,
+    required this.cacheDuration,
+    http.BaseClient? customClient,
+  }) {
     if (customClient != null) {
       _client = customClient;
     }
   }
 
-  factory SecureHttpClient.build(List<String> allowedSHAFingerprints,
-      {http.BaseClient? customClient}) {
+  factory SecureHttpClient.build(
+    List<String> allowedSHAFingerprints, {
+    SHA sha = SHA.SHA256,
+    CertificatePinningTarget certificatePinningTarget =
+        CertificatePinningTarget.leaf,
+    Duration cacheDuration = const Duration(minutes: 10),
+    http.BaseClient? customClient,
+  }) {
     return SecureHttpClient._internal(
-        allowedSHAFingerprints: allowedSHAFingerprints,
-        customClient: customClient);
+      allowedSHAFingerprints: allowedSHAFingerprints,
+      sha: sha,
+      certificatePinningTarget: certificatePinningTarget,
+      cacheDuration: cacheDuration,
+      customClient: customClient,
+    );
   }
 
   Future<Response> head(url, {Map<String, String>? headers}) =>
@@ -34,20 +50,36 @@ class SecureHttpClient extends http.BaseClient {
   Future<Response> get(url, {Map<String, String>? headers}) =>
       _sendUnstreamed("GET", url, headers);
 
-  Future<Response> post(url,
-          {Map<String, String>? headers, body, Encoding? encoding}) =>
+  Future<Response> post(
+    url, {
+    Map<String, String>? headers,
+    body,
+    Encoding? encoding,
+  }) =>
       _sendUnstreamed("POST", url, headers, body, encoding);
 
-  Future<Response> put(url,
-          {Map<String, String>? headers, body, Encoding? encoding}) =>
+  Future<Response> put(
+    url, {
+    Map<String, String>? headers,
+    body,
+    Encoding? encoding,
+  }) =>
       _sendUnstreamed("PUT", url, headers, body, encoding);
 
-  Future<Response> patch(url,
-          {Map<String, String>? headers, body, Encoding? encoding}) =>
+  Future<Response> patch(
+    url, {
+    Map<String, String>? headers,
+    body,
+    Encoding? encoding,
+  }) =>
       _sendUnstreamed("PATCH", url, headers, body, encoding);
 
-  Future<Response> delete(url,
-          {Map<String, String>? headers, body, Encoding? encoding}) =>
+  Future<Response> delete(
+    url, {
+    Map<String, String>? headers,
+    body,
+    Encoding? encoding,
+  }) =>
       _sendUnstreamed("DELETE", url, headers, body, encoding);
 
   Future<String> read(url, {Map<String, String>? headers}) {
@@ -68,24 +100,21 @@ class SecureHttpClient extends http.BaseClient {
 
   /// Sends a non-streaming [Request] and returns a non-streaming [Response].
   Future<Response> _sendUnstreamed(
-      String method, url, Map<String, String>? headers,
-      [body, Encoding? encoding]) async {
-
-    // iOS bug: Alamofire is failing to return parallel requests for certificate validation
-    if (Platform.isIOS && secure != null) {
-      await secure;
-    }
-
-    secure =  HttpCertificatePinning.check(
+    String method,
+    url,
+    Map<String, String>? headers, [
+    body,
+    Encoding? encoding,
+  ]) async {
+    final secureString = await HttpCertificatePinning.check(
       serverURL: url.toString(),
       headerHttp: {},
-      sha: SHA.SHA256,
+      sha: sha,
       allowedSHAFingerprints: allowedSHAFingerprints,
+      certificatePinningTarget: certificatePinningTarget,
+      cacheDuration: cacheDuration,
       timeout: 50,
     );
-
-    secure?.whenComplete(() => secure = null);
-    final secureString = await secure ?? '';
 
     if (secureString.contains("CONNECTION_SECURE")) {
       var request = Request(method, _fromUriOrString(url));

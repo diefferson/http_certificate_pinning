@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:http_certificate_pinning/http_certificate_pinning.dart';
+import 'package:http_certificate_pinning_plus/http_certificate_pinning_plus.dart';
 
 void main() => runApp(const MyApp());
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
-  _MyAppState createState() => _MyAppState();
+  State<MyApp> createState() => _MyAppState();
 }
 
 class _PiningSslData {
@@ -16,6 +16,8 @@ class _PiningSslData {
   String allowedSHAFingerprint = '';
   int timeout = 0;
   SHA? sha;
+  CertificatePinningTarget certificatePinningTarget =
+      CertificatePinningTarget.leaf;
 }
 
 class _MyAppState extends State<MyApp> {
@@ -33,6 +35,7 @@ class _MyAppState extends State<MyApp> {
     String url,
     String fingerprint,
     SHA sha,
+    CertificatePinningTarget certificatePinningTarget,
     Map<String, String> headerHttp,
     int timeout,
   ) async {
@@ -46,6 +49,7 @@ class _MyAppState extends State<MyApp> {
           headerHttp: headerHttp,
           sha: sha,
           allowedSHAFingerprints: allowedShA1FingerprintList,
+          certificatePinningTarget: certificatePinningTarget,
           timeout: timeout);
 
       // If the widget was removed from the tree while the asynchronous platform
@@ -80,6 +84,7 @@ class _MyAppState extends State<MyApp> {
         _data.serverURL,
         _data.allowedSHAFingerprint,
         _data.sha ?? SHA.SHA256,
+        _data.certificatePinningTarget,
         _data.headerHttp,
         _data.timeout,
       );
@@ -123,12 +128,12 @@ class _MyAppState extends State<MyApp> {
                     DropdownButton(
                       items: [
                         DropdownMenuItem(
-                          child: Text(SHA.SHA1.toString()),
                           value: SHA.SHA1,
+                          child: Text(SHA.SHA1.toString()),
                         ),
                         DropdownMenuItem(
-                          child: Text(SHA.SHA256.toString()),
                           value: SHA.SHA256,
+                          child: Text(SHA.SHA256.toString()),
                         )
                       ],
                       value: _data.sha,
@@ -136,6 +141,26 @@ class _MyAppState extends State<MyApp> {
                       onChanged: (SHA? val) {
                         setState(() {
                           _data.sha = val;
+                        });
+                      },
+                    ),
+                    DropdownButton(
+                      items: const [
+                        DropdownMenuItem(
+                          value: CertificatePinningTarget.leaf,
+                          child: Text('Leaf certificate'),
+                        ),
+                        DropdownMenuItem(
+                          value: CertificatePinningTarget.root,
+                          child: Text('Root certificate'),
+                        ),
+                      ],
+                      value: _data.certificatePinningTarget,
+                      isExpanded: true,
+                      onChanged: (CertificatePinningTarget? val) {
+                        setState(() {
+                          _data.certificatePinningTarget =
+                              val ?? CertificatePinningTarget.leaf;
                         });
                       },
                     ),
