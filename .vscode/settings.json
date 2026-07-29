@@ -1,9 +1,8 @@
 {
-    "[dart]": {
-      "editor.formatOnSave": true
-    },
-    "editor.codeActionsOnSave": {
-      "source.organizeImports": true
-    },
+  "[dart]": {
+    "editor.formatOnSave": true
+  },
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": true
   }
-  
+}

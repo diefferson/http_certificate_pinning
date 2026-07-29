@@ -12,7 +12,7 @@ void main() {
     setUp(() {
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(channel, (MethodCall methodCall) async {
         log.add(methodCall);
-        if (methodCall.method == 'check') {
+        if (methodCall.method.startsWith('check')) {
           return 'SUCCESS';
         }
         return null;
@@ -99,6 +99,131 @@ void main() {
 
       expect(log, hasLength(1));
       expect(log.first.arguments['fingerprints'], []);
+    });
+
+    test('checkPublicKeys method invokes with correct arguments', () async {
+      const String testUrl = 'https://example.com';
+      final Map<String, String> testHeaders = {'Authorization': 'Bearer token'};
+      const int testTimeout = 10;
+
+      await HttpCertificatePinning.checkPublicKeys(
+        serverURL: testUrl,
+        allowedLeafPublicKeyHashes: [
+          'sha256/47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+          ' bGVhZjItcHVibGljLWtleS1oYXNoLXBsYWNlaG9sZGVyPz8= ',
+        ],
+        allowedIntermediatePublicKeyHashes: [
+          'sha256/aW50ZXJtZWRpYXRlLWtleS1oYXNoLXBsYWNlaG9sZGVyPT0=',
+        ],
+        headerHttp: testHeaders,
+        timeout: testTimeout,
+      );
+
+      expect(log, hasLength(1));
+      expect(log.first.method, 'checkPublicKeys');
+      expect(log.first.arguments, <String, dynamic>{
+        'url': testUrl,
+        'headers': testHeaders,
+        'leafPublicKeyHashes': [
+          '47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=',
+          'bGVhZjItcHVibGljLWtleS1oYXNoLXBsYWNlaG9sZGVyPz8=',
+        ],
+        'intermediatePublicKeyHashes': [
+          'aW50ZXJtZWRpYXRlLWtleS1oYXNoLXBsYWNlaG9sZGVyPT0=',
+        ],
+        'timeout': testTimeout,
+        'allowCache': true,
+      });
+    });
+
+    test('checkPublicKeys method handles omitted optional arguments', () async {
+      await HttpCertificatePinning.checkPublicKeys(
+        serverURL: 'https://example.com',
+        allowedLeafPublicKeyHashes: ['47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='],
+      );
+
+      expect(log, hasLength(1));
+      expect(log.first.arguments, <String, dynamic>{
+        'url': 'https://example.com',
+        'headers': {},
+        'leafPublicKeyHashes': ['47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='],
+        'intermediatePublicKeyHashes': [],
+        'timeout': null,
+        'allowCache': true,
+      });
+    });
+
+    test('checkPublicKeys method returns expected string on success', () async {
+      final String result = await HttpCertificatePinning.checkPublicKeys(
+        serverURL: 'https://example.com',
+        allowedLeafPublicKeyHashes: ['47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='],
+      );
+
+      expect(result, 'SUCCESS');
+    });
+
+    test('checkLeaf method invokes with correct arguments', () async {
+      await HttpCertificatePinning.checkLeaf(
+        serverURL: 'https://example.com',
+        publicKeyHashes: ['sha256/47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='],
+        headerHttp: {'Authorization': 'Bearer token'},
+        timeout: 10,
+      );
+
+      expect(log, hasLength(1));
+      expect(log.first.method, 'checkLeaf');
+      expect(log.first.arguments, <String, dynamic>{
+        'url': 'https://example.com',
+        'headers': {'Authorization': 'Bearer token'},
+        'publicKeyHashes': ['47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='],
+        'timeout': 10,
+        'allowCache': true,
+      });
+    });
+
+    test('checkIntermediate method invokes with correct arguments', () async {
+      await HttpCertificatePinning.checkIntermediate(
+        serverURL: 'https://example.com',
+        publicKeyHashes: ['aW50ZXJtZWRpYXRlLWtleS1oYXNoLXBsYWNlaG9sZGVyPT0='],
+      );
+
+      expect(log, hasLength(1));
+      expect(log.first.method, 'checkIntermediate');
+      expect(log.first.arguments, <String, dynamic>{
+        'url': 'https://example.com',
+        'headers': {},
+        'publicKeyHashes': ['aW50ZXJtZWRpYXRlLWtleS1oYXNoLXBsYWNlaG9sZGVyPT0='],
+        'timeout': null,
+        'allowCache': true,
+      });
+    });
+
+    test('checkLeaf forwards allowCache false', () async {
+      await HttpCertificatePinning.checkLeaf(
+        serverURL: 'https://example.com',
+        publicKeyHashes: ['47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='],
+        allowCache: false,
+      );
+
+      expect(log, hasLength(1));
+      expect(log.first.arguments['allowCache'], false);
+    });
+
+    test('checkRoot method invokes with correct arguments', () async {
+      await HttpCertificatePinning.checkRoot(
+        serverURL: 'https://example.com',
+        publicKeyHashes: ['cm9vdC1jYS1rZXktaGFzaC1wbGFjZWhvbGRlci1iYXNlNjQ='],
+      );
+
+      expect(log, hasLength(1));
+      expect(log.first.method, 'checkRoot');
+      expect(log.first.arguments, <String, dynamic>{
+        'url': 'https://example.com',
+        'headers': {},
+        'publicKeyHashes': ['cm9vdC1jYS1rZXktaGFzaC1wbGFjZWhvbGRlci1iYXNlNjQ='],
+        'timeout': null,
+        'allowCache': true,
+      });
     });
   });
 }

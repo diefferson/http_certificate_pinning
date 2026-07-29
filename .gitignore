@@ -8,8 +8,9 @@ build/
 .build/
 .swiftpm/
 
-.fvm/flutter_sdk
-
 # Avoid committing pubspec.lock for library packages; see
 # https://dart.dev/guides/libraries/private-files#pubspeclock.
 pubspec.lock
+
+# FVM Version Cache
+.fvm/
