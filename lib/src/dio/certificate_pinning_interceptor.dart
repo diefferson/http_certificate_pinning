@@ -9,12 +9,14 @@ class CertificatePinningInterceptor extends Interceptor {
   final List<String> _allowedSHAFingerprints;
   final int _timeout;
   final bool callFollowingErrorInterceptor;
+  FutureOr<String> Function()? onTimeout;
   Future<String>? secure = Future.value('');
 
   CertificatePinningInterceptor({
     List<String>? allowedSHAFingerprints,
-    int timeout = 0,
+    int timeout = 60000,
     this.callFollowingErrorInterceptor = false,
+    this.onTimeout,
   })  : _allowedSHAFingerprints = allowedSHAFingerprints != null
             ? allowedSHAFingerprints
             : <String>[],
@@ -43,7 +45,14 @@ class CertificatePinningInterceptor extends Interceptor {
         sha: SHA.SHA256,
         allowedSHAFingerprints: _allowedSHAFingerprints,
         timeout: _timeout,
-      );
+      ).timeout(Duration(milliseconds: _timeout),
+          onTimeout: onTimeout ??
+              () {
+                throw DioException.connectionTimeout(
+                    timeout: Duration(milliseconds: _timeout),
+                    requestOptions: options);
+              });
+      ;
 
       final secureString = await secure?.whenComplete(() => secure = null);
 
